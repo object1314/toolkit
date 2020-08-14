@@ -102,14 +102,16 @@ public class LinkedStack<E> extends AbstractStack<E> implements Stack<E>, java.i
 
 	/**
 	 * Push an element on the top of the stack. In this stack strategy, a
-	 * <code>null</code> element is allowed.
+	 * <code>null</code> element is allowed. If the stack is full, the operation is
+	 * ignored and nothing happens here.
 	 * 
 	 * @param e the element to push
 	 */
 	@Override
 	public void push(E e) {
 		synchronized (lock) {
-			this.top = new Node<>(e, this.top);
+			if (size() < capacity)
+				this.top = new Node<>(e, this.top);
 		}
 	}
 
