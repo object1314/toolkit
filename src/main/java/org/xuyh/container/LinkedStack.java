@@ -33,7 +33,7 @@ public class LinkedStack<E> extends AbstractStack<E> implements Stack<E>, java.i
 	/**
 	 * The maximum capacity of a {@link LinkedStack stack} in this type.
 	 */
-	public static final long MAX_CAPACITY = Integer.MAX_VALUE;
+	public static final long MAX_CAPACITY = Integer.MAX_VALUE - 8;
 
 	/**
 	 * An object lock on the operation of this stack.
@@ -71,7 +71,7 @@ public class LinkedStack<E> extends AbstractStack<E> implements Stack<E>, java.i
 		if (capacity <= 0L)
 			this.capacity = 0L;
 		else
-			this.capacity = Long.max(capacity, MAX_CAPACITY);
+			this.capacity = Long.min(capacity, MAX_CAPACITY);
 	}
 
 	/**
@@ -92,7 +92,7 @@ public class LinkedStack<E> extends AbstractStack<E> implements Stack<E>, java.i
 	 * Peek the top element in the stack. When the element not found, a
 	 * <code>null</code> value is expected.
 	 * 
-	 * @return the top element or <code>null</code> if the stack is empty.
+	 * @return the top element or <code>null</code> if the stack is empty
 	 */
 	@Override
 	public E peek() {
@@ -109,10 +109,27 @@ public class LinkedStack<E> extends AbstractStack<E> implements Stack<E>, java.i
 	 */
 	@Override
 	public void push(E e) {
+		tryPush(e);
+	}
+
+	/**
+	 * Push an element on the top of the stack. In this stack strategy, a
+	 * <code>null</code> element is allowed. If the stack is full, the operation is
+	 * failed and a <code>false</code> value returned.
+	 * 
+	 * @param e the element to push
+	 * @return <code>true</code> if the push action succeeds
+	 */
+	public boolean tryPush(E e) {
+		if (size() >= capacity)
+			return false;
 		synchronized (lock) {
 			if (size() < capacity)
 				this.top = new Node<>(e, this.top);
+			else
+				return false;
 		}
+		return true;
 	}
 
 	/**
@@ -166,7 +183,7 @@ public class LinkedStack<E> extends AbstractStack<E> implements Stack<E>, java.i
 			if (null == cur.element ? null == e : cur.element.equals(e)) {
 				return cur.height;
 			}
-			cur = top.below;
+			cur = cur.below;
 		}
 		return -1;
 	}
@@ -197,7 +214,7 @@ public class LinkedStack<E> extends AbstractStack<E> implements Stack<E>, java.i
 			if (c.compare(e, cur.element) == 0) {
 				return cur.height;
 			}
-			cur = top.below;
+			cur = cur.below;
 		}
 		return -1;
 	}
@@ -254,7 +271,12 @@ public class LinkedStack<E> extends AbstractStack<E> implements Stack<E>, java.i
 	 * Returns an array containing all of the elements in this stack. The array is
 	 * in order of the stack from bottom element to top one.
 	 * 
+	 * @param componentType the element type in the array, who are expected to be a
+	 *                      super-type of all elements in the stack
 	 * @return an array containing all of the elements in this stack
+	 * @throws ArrayStoreException if the runtime type of the specified array is not
+	 *                             a super-type of the runtime type of every element
+	 *                             in this list
 	 */
 	@SuppressWarnings("unchecked")
 	@Override

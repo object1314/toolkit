@@ -5,6 +5,7 @@
 package org.xuyh.container;
 
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 
 /**
  * This class provides a skeletal implementation of the {@link Stack} interface
@@ -80,15 +81,19 @@ public abstract class AbstractStack<E> implements Stack<E> {
 
 	/**
 	 * Peek the top element in the stack. When the element not found, a
-	 * <code>null</code> value is expected. There affords a way on iterator.
+	 * {@link NoSuchElementException} thrown. <code>null</code> value is expected.
+	 * There affords a way on iterator.
 	 * 
-	 * @return the top element or <code>null</code> if the stack is empty.
+	 * @return the top element
+	 * @throws NoSuchElementException when the stack is empty.
 	 * @see #iterator()
 	 */
 	@Override
 	public E peek() {
 		Iterator<E> ite = iterator();
-		return ite.hasNext() ? ite.next() : null;
+		if (ite.hasNext())
+			return ite.next();
+		throw new NoSuchElementException();
 	}
 
 	/**
@@ -193,7 +198,12 @@ public abstract class AbstractStack<E> implements Stack<E> {
 	 * Returns an array containing all of the elements in this stack. The array is
 	 * in order of the stack from bottom element to top one.
 	 * 
+	 * @param componentType the element type in the array, who are expected to be a
+	 *                      super-type of all elements in the stack
 	 * @return an array containing all of the elements in this stack
+	 * @throws ArrayStoreException if the runtime type of the specified array is not
+	 *                             a super-type of the runtime type of every element
+	 *                             in this list
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
