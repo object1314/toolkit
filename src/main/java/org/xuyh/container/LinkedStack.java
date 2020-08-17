@@ -121,8 +121,6 @@ public class LinkedStack<E> extends AbstractStack<E> implements Stack<E>, java.i
 	 * @return <code>true</code> if the push action succeeds
 	 */
 	public boolean tryPush(E e) {
-		if (size() >= capacity)
-			return false;
 		synchronized (lock) {
 			if (size() < capacity)
 				this.top = new Node<>(e, this.top);
