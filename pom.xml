@@ -146,6 +146,12 @@
 			<artifactId>netty-all</artifactId>
 		</dependency>
 
+		<!-- Settings libraries for EHCache -->
+		<dependency>
+			<groupId>net.sf.ehcache</groupId>
+			<artifactId>ehcache</artifactId>
+		</dependency>
+
 		<!-- Setting libraries as HTTP client -->
 		<dependency>
 			<groupId>org.apache.httpcomponents</groupId>
