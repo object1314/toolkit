@@ -1,0 +1,247 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+	name: an optional name for the CacheManager. The name is optional and primarily
+	used for documentation.
+
+	updateCheck: an optional boolean flag specifying whether this CacheManager
+	should check for new versions of EhCache over the Internet. If not specified,
+	updateCheck="true".
+
+	dynamicConfig: an optional setting that can be used to disable dynamic
+	configuration of caches associated with this CacheManager.
+
+	defaultTransactionTimeoutInSeconds: defaultTransactionTimeoutInSeconds="15"
+	if not specified.
+
+	maxBytesLocalHeap: optional setting that constraints the memory usage of the
+	Caches managed by the CacheManager to use at most the specified number of bytes
+	of the local VM's heap.The value should match regex of
+	"[0-9]+[bBkKmMgG]?|100%|[0-9]{1,2}%". Default is 0 when not limits.
+
+	maxBytesLocalOffHeap: optional setting that constraints the offHeap usage of
+	the Caches managed by the CacheManager to use at most the specified number of
+	bytes of the local VM's offHeap memory. The value should match regex of
+	"[0-9]+[bBkKmMgG]". Default is 0 when not limits.
+
+	maxBytesLocalDisk: optional setting that constraints the disk usage of the
+	Caches managed by the CacheManager to use at most the specified number of bytes
+	of the local disk. The value should match regex of "[0-9]+[bBkKmMgG]". Default
+	is 0 when not limits.
+
+	monitoring: an optional setting that determines whether the CacheManager should
+	automatically register the SampledCacheMBean with the system MBean server.
+	"autodetect", "on", off" are allowed. Default is "autodetect".
+-->
+<ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="http://ehcache.org/ehcache.xsd"
+	name="toolkit"
+	updateCheck="false">
+
+	<!--
+		There are two ways of Memory and Disk to store cache data.
+		The diskStore element is optional. Configure it if you have disk
+		persistence enabled for any cache or if you use unclustered indexed search.
+		If it is not configured, and a cache is created which requires a disk
+		store, a warning will be issued and java.io.tmpdir will automatically be
+		used.
+		DiskStore has only one attribute - "path". It is the path to the directory
+		where any required disk files will be created.
+		If the path is one of the following Java System Property it is replaced by
+		its value in the running VM. For backward compatibility these should be
+		specified without being enclosed in the ${token} replacement syntax.
+		The following properties are translated:
+			user.home - user's home directory.
+			user.dir - User's current working directory
+			java.io.tmpdir - Default temporary file path
+			ehcache.disk.store.dir - A system property you would normally specify
+			on the command line e.g. java -Dehcache.disk.store.dir=/u01/myapp/dir
+	-->
+
+	<diskStore path="java.io.tmpdir/Tmp_EhCache" />
+
+	<!--
+		DefaultCache is the default cache strategy when the EhCache failed find the
+		cache strategy defined. It's allowed to defined one time. All of the
+		properties in it are optional.
+	-->
+	<!--
+		maxElementsInMemory
+
+		maxEntriesLocalHeap: Specify the maximum number of elements that can stay
+		in memory(JVM memory, know as heap). Zero value as unlimited.
+
+		maxElementsOnDisk
+
+		maxEntriesLocalDisk: Specify the maximum number of objects that will be
+		maintained in the DiskStore. The default value is zero, meaning unlimited.
+
+		eternal: Specify whether the elemement in the cache is never expired. Note
+		that when a cache is eternal, timeToLive and  timeToIdle are not used and
+		do not need to be specified.
+
+		timeToIdleSeconds: Sets the time to idle for an element before it expires.
+		It's the maximum amount of time between accesses before an element expires.
+		It's only used if the element is not eternal. A value of 0 means that an
+		Element can idle for infinity. The default value is 0.
+
+		timeToLiveSeconds: Sets the time to live for an element before it expires.
+		It's the maximum time between creation time and when an element expires.
+		It's only used if the element is not eternal. A value of 0 means that an
+		Element can live for infinity. The default value is 0.
+
+		overflowToDisk: Specify whether overflow to disk if the number of elements
+		exceed in memory.
+
+		diskPersistent: The disk store is persistent between cache and VM restarts.
+		That's to say, data saved in the disk will be persisted even the VM is
+		down.
+
+		diskSpoolBufferSizeMB: This is the size to allocate the DiskStore for a
+		spool buffer. Writes are made  to this area and then asynchronously written
+		to disk. The default size is 30MB. Each spool buffer is used only by its
+		cache. If you get OutOfMemory errors consider lowering this value. To
+		improve DiskStore performance consider increasing it. Trace level logging
+		in the DiskStore will show if put back ups are occurring.
+
+		diskExpiryThreadIntervalSeconds: The number of seconds between runs of the
+		disk expiry thread. The default value is 120 seconds.
+
+		diskAccessStripes: The number of concurrent disk access stripes. Default is
+		1.
+
+		clearOnFlush: If clear memory when run flush. The default is true.
+
+		memoryStoreEvictionPolicy: EhCache will clear memory when the elements
+		count is over maxElementsInMemory on defined policy.
+		There are three policies:
+			FIFO: first in first out.
+			LFU:  Less Frequently Used. A hit property owned on each element.
+			LRU: Least Recently Used. A timeStamp owned on each element.
+		The default value is LRU.
+
+		transactionalMode: Represents whether the Cache is transactional or not.
+		It's one of OFF, LOCAL, XA, XA_STRICT. The default value is OFF.
+
+		statistics: Represents whether the cache's statistics will be enabled at
+		startup. The default value is false.
+
+		copyOnRead: Represents whether an Element is copied when being read from
+		a cache. By default this is false.
+
+		copyOnWrite: Represents whether an Element is copied when being added to
+		the	cache. By default this is false.
+
+		cacheLoaderTimeoutMillis: Timeout in milliseconds for CacheLoader related
+		calls. By default this is 0 when no timeout.
+
+		overflowToOffHeap: Represents whether elements can overflow to off heap
+		memory when the in-memory cache has reached the set limit. Works only for
+		Enterprise Edition when it's true. Default is false.
+
+		maxMemoryOffHeap: Represents the max off heap memory size allocated for
+		this cache. Works only for Enterprise Edition.
+	-->
+
+	<defaultCache
+
+		eternal="false"
+
+		maxEntriesLocalHeap="1000"
+
+		maxEntriesLocalDisk="0"
+
+		overflowToDisk="true" 
+
+		diskPersistent="false" 
+
+		diskSpoolBufferSizeMB="30"
+
+		diskExpiryThreadIntervalSeconds="120"
+
+		timeToIdleSeconds="300"
+
+		timeToLiveSeconds="300" 
+
+		clearOnFlush="true"
+
+		memoryStoreEvictionPolicy="LRU" />
+
+	<!--
+		Cache has all properties in DefaultCache but else extra properies.
+	-->
+	<!--
+		name: Required property for the cache name so that the cache will be loaded
+		by CacheManager.
+
+		maxEntriesInCache: Specify the maximum number of elements that can stay
+		in this cache. Zero means unlimited.
+
+		maxBytesLocalHeap: Specify the maximum bytes that this cache can allocate
+		in memory(JVM memory, know as heap). It should match the regex of:
+		[0-9]+[bBkKmMgG]?|100%|[0-9]{1,2}%. The value shouldn't be larger than
+		ehcache.maxBytesLocalHeap in the parent tag. If there exists another cache
+		then the distribution value for that cache will be
+		ehcache.maxBytesLocalHeap-this.maxBytesLocalHeap. Default value is 0.
+
+		maxBytesLocalDisk: Specify the maximum bytes in DiskStore this cache can
+		use. It should match the regex of: [0-9]+[bBkKmMgG]?|100%|[0-9]{1,2}%. The
+		value shouldn't be larger than ehcache.maxBytesLocalDisk in the parent tag.
+		If there exists another cache then the distribution value for that cache
+		will be ehcache.maxBytesLocalDisk-this.maxBytesLocalDisk. Default value is
+		0.
+
+		maxBytesLocalOffHeap: Specify the maximum bytes that this cache can
+		allocate in off memory(not JVM memory). It should match the regex of:
+		[0-9]+[bBkKmMgG]?|100%|[0-9]{1,2}%. The value shouldn't be larger than
+		ehcache.maxBytesLocalOffHeap in the parent tag. If there exists another
+		cache then the distribution value for that cache will be
+		ehcache.maxBytesLocalOffHeap-this.maxBytesLocalOffHeap. Works only for
+		Enterprise Edition. Default value is 0.
+
+		logging: Indicates whether logging is enabled or not. False is default.
+	-->
+
+	<cache
+
+		name="eternal"
+
+		eternal="true"
+
+		maxEntriesLocalHeap="1000"
+
+		maxEntriesLocalDisk="0"
+
+		overflowToDisk="true" 
+
+		diskPersistent="true" 
+
+		diskSpoolBufferSizeMB="30"
+
+		clearOnFlush="true"/>
+
+	<!--
+		Specifies a CacheManagerEventListenerFactory which is notified when Caches
+		are added or removed from the CacheManager. The events included adding a
+		Cache and removing a Cache.
+		Callbacks to listener methods are synchronous and unsynchronized. It is the
+		responsibility of the implementer to safely handle the potential
+		performance and thread safety issues depending on what their listener is
+		doing.
+	-->
+	<!--
+		The attributes of CacheManagerEventListenerFactory are:
+
+			class: Required value. It's a fully qualified factory class name. The
+			fully qualified class name will be set to be registered as the
+			CacheManager event listener. If no class is specified, no listener is
+			created. There is no default.
+
+			properties
+
+			propertySeparator: Comma separated properties having meaning only to
+			the factory.
+
+			listenFor: Default is "all".
+	-->
+</ehcache>

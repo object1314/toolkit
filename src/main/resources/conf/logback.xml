@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+	Rewrite base LOGBACK configuration provided for compatibility with Spring 
+	Boot 1.1 The source file is org/springframework/boot/logging/logback/base.xml
+	in spring-boot-2.1.1.RELEASE.jar.
+ -->
+
+<configuration debug="false">
+
+	<include resource="org/springframework/boot/logging/logback/defaults.xml" />
+	<property name="LOG_PATH" value="${LOG_PATH:-${LOG_TEMP:-${java.io.tmpdir:-/tmp}}}" />
+	<include resource="org/springframework/boot/logging/logback/console-appender.xml" />
+
+	<appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<encoder>
+			<pattern>${FILE_LOG_PATTERN}</pattern>
+		</encoder>
+		<file>${LOG_PATH}/root/app.log</file>
+		<rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+			<!-- Rolling daily -->
+			<fileNamePattern>${LOG_PATH}/root/app.%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
+			<!-- Each log file limit size -->
+			<maxFileSize>32MB</maxFileSize>
+			<!-- Max keep days -->
+			<maxHistory>30</maxHistory>
+			<!-- Keep max total size as 4GB. The files count is less than 200. -->
+			<totalSizeCap>2GB</totalSizeCap>
+		</rollingPolicy>
+	</appender>
+
+	<appender name="updateOperationAppender" class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<encoder>
+			<pattern>${FILE_LOG_PATTERN}</pattern>
+		</encoder>
+		<file>${LOG_PATH}/updates/app.log</file>
+		<rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+			<!-- Rolling daily -->
+			<fileNamePattern>${LOG_PATH}/updates/app.%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
+			<!-- Each log file limit size -->
+			<maxFileSize>32MB</maxFileSize>
+			<!-- Max keep days -->
+			<maxHistory>30</maxHistory>
+			<!-- Keep max total size as 2GB. -->
+			<totalSizeCap>2GB</totalSizeCap>
+		</rollingPolicy>
+	</appender>
+
+	<appender name="queryOperationAppender" class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<encoder>
+			<pattern>${FILE_LOG_PATTERN}</pattern>
+		</encoder>
+		<file>${LOG_PATH}/querys/app.log</file>
+		<rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+			<!-- Rolling daily -->
+			<fileNamePattern>${LOG_PATH}/querys/app.%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
+			<!-- Each log file limit size -->
+			<maxFileSize>32MB</maxFileSize>
+			<!-- Max keep days -->
+			<maxHistory>15</maxHistory>
+			<!-- Keep max total size as 1GB. -->
+			<totalSizeCap>1GB</totalSizeCap>
+		</rollingPolicy>
+	</appender>
+
+	<logger name="updateOperationLogger" additivity="false">
+		<appender-ref ref="CONSOLE" />
+		<appender-ref ref="updateOperationAppender" />
+	</logger>
+
+	<logger name="queryOperationLogger" additivity="false">
+		<appender-ref ref="CONSOLE" />
+		<appender-ref ref="queryOperationAppender" />
+	</logger>
+
+	<root level="INFO">
+		<appender-ref ref="CONSOLE" />
+		<appender-ref ref="FILE" />
+	</root>
+
+	<logger name="net.sf.json.JSONObject" level="WARN"/>
+
+</configuration>
