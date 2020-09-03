@@ -45,27 +45,6 @@
 					<encoding>${project.build.sourceEncoding}</encoding>
 				</configuration>
 			</plugin>
-			<plugin>
-				<artifactId>maven-antrun-plugin</artifactId>
-				<executions>
-					<execution>
-						<id>dist-webs</id>
-						<phase>compile</phase>
-						<configuration>
-							<target>
-								<property name="from" value="../www/dist" />
-								<property name="to" value="./target/classes/static" />
-								<echo message="copy from ${from} to ${to}" />
-								<copydir src="${from}" dest="${to}" includes="**/*">
-								</copydir>
-							</target>
-						</configuration>
-						<goals>
-							<goal>run</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
 		</plugins>
 	</build>
 
