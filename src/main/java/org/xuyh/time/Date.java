@@ -195,7 +195,7 @@ public final class Date implements java.io.Serializable, Cloneable, Comparable<D
 				break;
 			}
 			long ty = y + sy;
-			exd -= _getDaysBetweenYears(y, ty);
+			exd -= _getDaysBetweenYearFirstDay(y, ty);
 			y = ty;
 		}
 		// Fast Confirm
@@ -706,24 +706,31 @@ public final class Date implements java.io.Serializable, Cloneable, Comparable<D
 	}
 
 	/**
+	 * Calculate the leap days(February 29th) count between a year' January 1st with
+	 * year 0(B.C. 1)'s January 1st.
+	 * 
+	 * @param year The target year.
+	 * @return The leaps between the year's 01-01 with B.C.0001-01-01
+	 */
+	private static long _getLeapsBetweenYearFirstDayWithYear0(long year) {
+		if (year > 0) {
+			long temp = year - 1;
+			return (temp / 4 - temp / 100 + temp / 400 - temp / 3200) + 1;
+		} else {
+			return year / 4 - year / 100 + year / 400 - year / 3200;
+		}
+	}
+
+	/**
 	 * Calculate the days count between two years' January 1st.
 	 * 
-	 * @param from The from year.
-	 * @param to   The to year.
-	 * @return The days between the two years.
+	 * @param fromYear The from year.
+	 * @param toYear   The to year.
+	 * @return The days between the to year's 01-01 with the from year's 01-01.
 	 */
-	private static long _getDaysBetweenYears(long from, long to) {
-		long days = (to - from) * 365;
-		days += to / 4 - from / 4;
-		days -= to / 100 - from / 100;
-		days += to / 400 - from / 400;
-		days -= to / 3200 - from / 3200;
-		if (from <= 0 && to > 0) {
-			days--;
-		} else if (from > 0 && to <= 0) {
-			days++;
-		}
-		return days;
+	private static long _getDaysBetweenYearFirstDay(long fromYear, long toYear) {
+		return (toYear - fromYear) * 365
+				+ (_getLeapsBetweenYearFirstDayWithYear0(toYear) - _getLeapsBetweenYearFirstDayWithYear0(fromYear));
 	}
 
 	/**
