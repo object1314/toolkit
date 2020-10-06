@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2020 XuYanhang
+ * 
+ */
 package org.xuyh.container;
 
 import java.lang.reflect.Array;
