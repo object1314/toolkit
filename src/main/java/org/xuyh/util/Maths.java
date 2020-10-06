@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2020 XuYanhang
+ * 
+ */
 package org.xuyh.util;
 
 import java.util.Arrays;
