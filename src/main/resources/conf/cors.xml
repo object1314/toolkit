@@ -20,9 +20,8 @@
 			patterns (such as "/admin/**"). 
 		-->
 		<pathMapping>/**</pathMapping>
-
 		<!--
-			allowMethods(include array in method tags):
+			allowedMethods(include array in method tags):
 
 			Set the HTTP methods to allow, e.g. "GET", "POST", etc. The special value "*"
 			allows all methods. 
@@ -30,16 +29,16 @@
 			By default "simple" methods, i.e. GET, HEAD, and POST are allowed when the sub
 			tags of method are not set.
 		-->
-		<allowMethods>
+		<allowedMethods>
 			<!--
 				method:
 				Inner value allowed of "GET", "POST", "HEAD" or other HTTP request method or "*".
 			-->
 			<method>*</method>
-		</allowMethods>
+		</allowedMethods>
 
 		<!--
-			allowOrigins(include array in origin tags):
+			allowedOrigins(include array in origin tags):
 
 			The list of allowed origins that be specific origins, e.g. "http://domain1.com",
 			or "*" for all origins. 
@@ -55,16 +54,16 @@
 
 			By default, all origins are allowed when the sub tags of origin are not set. 
 		-->
-		<allowOrigins>
+		<allowedOrigins>
 			<!--
 				origin:
 				Inner value allowed of a specific origin or "*".
 			-->
 			<origin>*</origin>
-		</allowOrigins>
+		</allowedOrigins>
 
 		<!--
-			allowHeaders(include array in header tags):
+			allowedHeaders(include array in header tags):
 
 			Set the list of headers that a preflight request can list as allowed for use
 			during an actual request. The special value "*" may be used to allow all headers. 
@@ -74,13 +73,13 @@
 
 			By default all headers are allowed when the sub tags of header are not set.
 		-->
-		<allowHeaders>
+		<allowedHeaders>
 			<!--
 				header:
 				Inner value allowed of a header name or "*".
 			-->
 			<header>*</header>
-		</allowHeaders>
+		</allowedHeaders>
 
 		<!--
 			exposedHeaders(include array in header tags):
@@ -96,7 +95,7 @@
 		<exposedHeaders>
 			<!--
 				header:
-				Inner value allowed of a header name.
+				Inner value allowed of a header name but not support "*".
 			-->
 		</exposedHeaders>
 
@@ -117,6 +116,16 @@
 		-->
 		<allowCredentials></allowCredentials>
 
+		<!--
+			maxAge(Inner value in a number from "0" to "2147483647" or just a ""):
+
+			Configure how long in seconds the response from a pre-flight request can be
+			cached by clients.
+
+			By default the max age is not set when the value is "" in which case is set to
+			1800 seconds (30 minutes).
+		-->
+		<maxAge></maxAge>
 	</cors>
 
 </configuration>
