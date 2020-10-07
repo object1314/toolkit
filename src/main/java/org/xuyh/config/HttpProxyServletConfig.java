@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2020 XuYanhang
+ * 
+ */
 package org.xuyh.config;
 
 import org.mitre.dsmiley.httpproxy.ProxyServlet;
@@ -8,6 +12,12 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.core.env.Environment;
 import org.springframework.core.env.PropertyResolver;
 
+/**
+ * Configuration on HTTP Proxy those are injected into SpringBoot directly.
+ * 
+ * @author XuYanhang
+ *
+ */
 @ConditionalOnProperty("http.proxy.enable")
 @org.springframework.context.annotation.Configuration
 public class HttpProxyServletConfig implements EnvironmentAware {
@@ -109,8 +119,7 @@ public class HttpProxyServletConfig implements EnvironmentAware {
 			throw new IllegalArgumentException("Illegal proxy target uri of http.proxy." + n + ".target_uri");
 
 		ServletRegistrationBean<ProxyServlet> servletRegistrationBean = new ServletRegistrationBean<>(
-				new ProxyServlet(), servletPath);
-
+				new ProxyServlet(), true, servletPath);
 		servletRegistrationBean.addInitParameter("targetUri", targetUri);
 		servletRegistrationBean.addInitParameter(ProxyServlet.P_LOG,
 				propertyResolver.getProperty("http.proxy.log.open", "false"));

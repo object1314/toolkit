@@ -1,8 +1,13 @@
+/*
+ * Copyright (c) 2020 XuYanhang
+ * 
+ */
 package org.xuyh.config;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Scope;
 import org.springframework.web.context.request.async.DeferredResult;
-import org.xuyh.ApplicationVersion;
 
 import springfox.documentation.builders.ApiInfoBuilder;
 import springfox.documentation.builders.PathSelectors;
@@ -12,9 +17,21 @@ import springfox.documentation.service.Contact;
 import springfox.documentation.spi.DocumentationType;
 import springfox.documentation.spring.web.plugins.Docket;
 
+/**
+ * Configuration on Swagger-UI.
+ * 
+ * @author XuYanhang
+ *
+ */
 @org.springframework.context.annotation.Configuration
 @springfox.documentation.swagger2.annotations.EnableSwagger2
 public class SwaggerConfig {
+
+	@Value("${project.name}")
+	private String projectName;
+
+	@Value("${project.version}")
+	private String projectVersion;
 
 	/**
 	 * 
@@ -24,9 +41,10 @@ public class SwaggerConfig {
 	}
 
 	@Bean
+	@Scope("singleton")
 	public Docket defaultApi() {
 		return new Docket(DocumentationType.SWAGGER_2) // Generate a Docket
-				.groupName("toolkit") // GroupName
+				.groupName(projectName) // GroupName
 				.genericModelSubstitutes(DeferredResult.class) // to apply generic model substitution
 				.useDefaultResponseMessages(false) // to determine if the default response messages are used
 				.forCodeGeneration(false) // determines the naming strategy used
@@ -41,10 +59,10 @@ public class SwaggerConfig {
 	private ApiInfo apiInfo() {
 		Contact contact = new Contact("XuYanhang", "https://github.com/object1314/", "object1314@yeah.net");
 		return new ApiInfoBuilder() // Builder
-				.title("toolkits") // Title
-				.description("Platform's REST API on toolkit.") // Description
+				.title(projectName) // Title
+				.description("Platform's REST API on " + projectName) // Description
 				.contact(contact) // Contact
-				.version("V" + ApplicationVersion.version) // Version
+				.version(projectVersion) // Version
 				.build(); // Out
 	}
 

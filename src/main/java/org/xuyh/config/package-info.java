@@ -1,8 +1,11 @@
-/**
+/*
+ * Copyright (c) 2020 XuYanhang
  * 
  */
 /**
- * @author Administrator
+ * Configurations on this project.
+ * 
+ * @author XuYanhang
  *
  */
 package org.xuyh.config;
