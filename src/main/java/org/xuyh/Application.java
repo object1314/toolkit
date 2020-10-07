@@ -1,14 +1,32 @@
+/*
+ * Copyright (c) 2020 XuYanhang
+ * 
+ */
 package org.xuyh;
 
-import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+/**
+ * Entrance class of the spring application.
+ * 
+ * @author XuYanhang
+ *
+ */
 //Sprint Boot Auto Configuration
-@org.springframework.boot.autoconfigure.EnableAutoConfiguration
-@org.springframework.context.annotation.ComponentScan(basePackages = "org.xuyh")
-public class Application implements org.springframework.web.servlet.config.annotation.WebMvcConfigurer {
+@EnableAutoConfiguration
+@ComponentScan(basePackages = "org.xuyh")
+public class Application implements WebMvcConfigurer {
 
+	/**
+	 * Entrance main method.
+	 * 
+	 * @param args start arguments
+	 * @throws Throwable throw these exceptions into stack
+	 */
 	public static void main(String[] args) throws Throwable {
-		SpringApplication.run(Application.class, args);
+		new ApplicationRunner().registServicePID().registBanner().run(args);
 	}
 
 }
