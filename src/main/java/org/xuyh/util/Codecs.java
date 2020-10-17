@@ -145,7 +145,7 @@ public final class Codecs {
 	 * @see #md5(byte[], int, int)
 	 */
 	public static byte[] md5(byte[] data) {
-		return MD5.calHash(data, 0, data.length);
+		return MD5.calHashes(data, 0, data.length);
 	}
 
 	/**
@@ -159,7 +159,7 @@ public final class Codecs {
 	 * @throws IndexOutOfBoundsException if the data range is illegal
 	 */
 	public static byte[] md5(byte[] data, int offset, int len) {
-		return MD5.calHash(data, offset, len);
+		return MD5.calHashes(data, offset, len);
 	}
 
 	/**
@@ -371,7 +371,7 @@ public final class Codecs {
 		/**
 		 * Calculate the MD5 hashes from a input data.
 		 */
-		static byte[] calHash(byte[] data, int offset, int len) {
+		static byte[] calHashes(byte[] data, int offset, int len) {
 			if (null == data)
 				throw new NullPointerException();
 			if (offset < 0 || offset + len > data.length || offset > offset + len)
@@ -420,22 +420,22 @@ public final class Codecs {
 			S = new int[] { // Begin initialize
 					7, 12, 17, 22, 7, 12, 17, 22, // R0
 					7, 12, 17, 22, 7, 12, 17, 22, // R1
-					5, 9, 14, 20, 5, 9, 14, 20, // R2
-					5, 9, 14, 20, 5, 9, 14, 20, // R3
+					5,  9, 14, 20, 5,  9, 14, 20, // R2
+					5,  9, 14, 20, 5,  9, 14, 20, // R3
 					4, 11, 16, 23, 4, 11, 16, 23, // R4
 					4, 11, 16, 23, 4, 11, 16, 23, // R5
 					6, 10, 15, 21, 6, 10, 15, 21, // R6
 					6, 10, 15, 21, 6, 10, 15, 21// R7
 			};
 			M = new int[] { // Begin initialize
-					0, 1, 2, 3, 4, 5, 6, 7, // R0
-					8, 9, 10, 11, 12, 13, 14, 15, // R1
-					1, 6, 11, 0, 5, 10, 15, 4, // R2
-					9, 14, 3, 8, 13, 2, 7, 12, // R3
-					5, 8, 11, 14, 1, 4, 7, 10, // R4
-					13, 0, 3, 6, 9, 12, 15, 2, // R5
-					0, 7, 14, 5, 12, 3, 10, 1, // R6
-					8, 15, 6, 13, 4, 11, 2, 9 // R7
+					 0,  1,  2,  3,  4,  5,  6,  7, // R0
+					 8,  9, 10, 11, 12, 13, 14, 15, // R1
+					 1,  6, 11,  0,  5, 10, 15,  4, // R2
+					 9, 14,  3,  8, 13,  2,  7, 12, // R3
+					 5,  8, 11, 14,  1,  4,  7, 10, // R4
+					13,  0,  3,  6,  9, 12, 15,  2, // R5
+					 0,  7, 14,  5, 12,  3, 10,  1, // R6
+					 8, 15,  6, 13,  4, 11,  2,  9 // R7
 			};
 		}
 
@@ -473,16 +473,10 @@ public final class Codecs {
 			int extraLen = len & 0X3f;
 			byte[] tempBytes = new byte[64];
 			System.arraycopy(data, len - extraLen + offset, tempBytes, 0, extraLen);
-			if (extraLen < 56) {
+			if (extraLen != 56)
 				tempBytes[extraLen] = (byte) (1 << 7);
-				for (int i = 1; i < 56 - extraLen; i++)
-					tempBytes[extraLen + i] = 0;
-			} else if (extraLen > 56) {
-				tempBytes[extraLen] = (byte) (1 << 7);
-				for (int i = extraLen + 1; i < 64; i++)
-					tempBytes[i] = 0;
+			if (extraLen > 56) {
 				hashGroup(tempBytes, 0, 0);
-
 				for (int i = 0; i < 56; i++)
 					tempBytes[i] = 0;
 			}
