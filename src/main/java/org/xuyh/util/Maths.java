@@ -18,6 +18,186 @@ import java.util.Arrays;
 public final class Maths {
 
 	/**
+	 * Returns the maximum value in some values
+	 * 
+	 * @see Math#max(int, int)
+	 * @param vals input values
+	 * @return the maximum value
+	 * @throws NullPointerException     if the input array is <code>null</code>
+	 * @throws IllegalArgumentException if the input array is empty
+	 */
+	public static int max(int... vals) {
+		if (vals.length == 0)
+			throw new IllegalArgumentException("empty vals");
+		int m = vals[0];
+		for (int i = 1; i < vals.length; i++)
+			if (vals[i] > m)
+				m = vals[i];
+		return m;
+	}
+
+	/**
+	 * Returns the maximum value in some values
+	 * 
+	 * @see Math#max(long, long)
+	 * @param vals input values
+	 * @return the maximum value
+	 * @throws NullPointerException     if the input array is <code>null</code>
+	 * @throws IllegalArgumentException if the input array is empty
+	 */
+	public static long max(long... vals) {
+		if (vals.length == 0)
+			throw new IllegalArgumentException("empty");
+		long m = vals[0];
+		for (int i = 1; i < vals.length; i++)
+			if (vals[i] > m)
+				m = vals[i];
+		return m;
+	}
+
+	/**
+	 * Returns the maximum value in some values. Any <code>NaN</code> element will
+	 * cause a <code>NaN</code> result.
+	 * 
+	 * @see Math#max(double, double)
+	 * @param vals input values
+	 * @return the maximum value
+	 * @throws NullPointerException     if the input array is <code>null</code>
+	 * @throws IllegalArgumentException if the input array is empty
+	 */
+	public static float max(float... vals) {
+		if (vals.length == 0)
+			throw new IllegalArgumentException("empty");
+		float m = vals[0];
+		for (int i = 1; i < vals.length; i++)
+			m = Math.max(vals[i], m);
+		return m;
+	}
+
+	/**
+	 * Returns the maximum value in some values. Any <code>NaN</code> element will
+	 * cause a <code>NaN</code> result.
+	 * 
+	 * @see Math#max(double, double)
+	 * @param vals input values
+	 * @return the maximum value
+	 * @throws NullPointerException     if the input array is <code>null</code>
+	 * @throws IllegalArgumentException if the input array is empty
+	 */
+	public static double max(double... vals) {
+		if (vals.length == 0)
+			throw new IllegalArgumentException("empty");
+		double m = vals[0];
+		for (int i = 1; i < vals.length; i++)
+			m = Math.max(vals[i], m);
+		return m;
+	}
+
+	/**
+	 * Returns the minimum value in some values
+	 * 
+	 * @see Math#min(int, int)
+	 * @param vals input values
+	 * @return the minimum integer
+	 * @throws NullPointerException     if the input array is <code>null</code>
+	 * @throws IllegalArgumentException if the input array is empty
+	 */
+	public static int min(int... vals) {
+		if (vals.length == 0)
+			throw new IllegalArgumentException("empty");
+		int m = vals[0];
+		for (int i = 1; i < vals.length; i++)
+			if (vals[i] < m)
+				m = vals[i];
+		return m;
+	}
+
+	/**
+	 * Returns the minimum value in some values
+	 * 
+	 * @see Math#min(long, long)
+	 * @param vals input values
+	 * @return the minimum value
+	 * @throws NullPointerException     if the input array is <code>null</code>
+	 * @throws IllegalArgumentException if the input array is empty
+	 */
+	public static long min(long... vals) {
+		if (vals.length == 0)
+			throw new IllegalArgumentException("empty");
+		long m = vals[0];
+		for (int i = 1; i < vals.length; i++)
+			if (vals[i] < m)
+				m = vals[i];
+		return m;
+	}
+
+	/**
+	 * Returns the minimum value in some values. Any <code>NaN</code> element will
+	 * cause a <code>NaN</code> result.
+	 * 
+	 * @see Math#min(float, float)
+	 * @param vals input values
+	 * @return the minimum value
+	 * @throws NullPointerException     if the input array is <code>null</code>
+	 * @throws IllegalArgumentException if the input array is empty
+	 */
+	public static float min(float... vals) {
+		if (vals.length == 0)
+			throw new IllegalArgumentException("empty");
+		float m = vals[0];
+		for (int i = 1; i < vals.length; i++)
+			m = Math.min(vals[i], m);
+		return m;
+	}
+
+	/**
+	 * Returns the minimum value in some values. Any <code>NaN</code> element will
+	 * cause a <code>NaN</code> result.
+	 * 
+	 * @see Math#min(double, double)
+	 * @param vals input values
+	 * @return the minimum value
+	 * @throws NullPointerException     if the input array is <code>null</code>
+	 * @throws IllegalArgumentException if the input array is empty
+	 */
+	public static double min(double... vals) {
+		if (vals.length == 0)
+			throw new IllegalArgumentException("empty");
+		double m = vals[0];
+		for (int i = 1; i < vals.length; i++)
+			m = Math.min(vals[i], m);
+		return m;
+	}
+
+	/**
+	 * Returns the sum of the values.
+	 * 
+	 * @param vals input values
+	 * @return the sum value
+	 * @throws NullPointerException if the input array is <code>null</code>
+	 */
+	public static long sum(int... vals) {
+		long sum = 0;
+		for (int i = 0; i < vals.length; i++)
+			sum += vals[i];
+		return sum;
+	}
+
+	/**
+	 * Returns the sum of the values.
+	 * 
+	 * @param vals input values
+	 * @return the sum value
+	 * @throws NullPointerException if the input array is <code>null</code>
+	 */
+	public static double sum(double... vals) {
+		double sum = 0.0d;
+		for (int i = 0; i < vals.length; i++)
+			sum += vals[i];
+		return sum;
+	}
+
+	/**
 	 * Returns <code>true</code> if a number is an even number or <code>false</code>
 	 * if it's an odd number.
 	 * 
@@ -39,16 +219,13 @@ public final class Maths {
 	 *                                  positive.
 	 */
 	public static long gcd(long a, long b) {
-		if (a < 1 || b < 1) {
+		if (a < 1 || b < 1)
 			throw new IllegalArgumentException("a=" + a + ",b=" + b);
-		}
 		// Special cases
-		if (a == b) {
+		if (a == b)
 			return a;
-		}
-		if (a == 1 || b == 1) {
+		if (a == 1 || b == 1)
 			return 1;
-		}
 		// Core circle
 		long m = a < b ? a : b;
 		long n = a < b ? b : a;
@@ -86,9 +263,8 @@ public final class Maths {
 	 */
 	public static long square(long n) {
 		// isqrt(Long.MAX_VALUE) = 3037000499L
-		if (n > 3037000499L || n < -3037000499L) {
+		if (n > 3037000499L || n < -3037000499L)
 			throw new ArithmeticException("Result overflow");
-		}
 		return n * n;
 	}
 
@@ -105,26 +281,21 @@ public final class Maths {
 	 *                                  error.
 	 */
 	public static long ipow(long n, long e) {
-		if (e < 0L) {
+		if (e < 0L)
 			throw new IllegalArgumentException("Negative exponent");
-		}
-		if (n == 0L && e == 0L) {
+		if (n == 0L && e == 0L)
 			throw new ArithmeticException("Arithmetic of 0^0");
-		}
 		// Core circle
 		long r = 1, tn = n, te = e;
 		while (true) {
-			if ((te & 1) != 0) {
+			if ((te & 1) != 0)
 				r = Math.multiplyExact(r, tn);
-			}
 			te >>= 1;
-			if (te == 0) {
+			if (te == 0)
 				break;
-			}
 			// isqrt(Long.MAX_VALUE) = 3037000499L
-			if (tn > 3037000499L || tn < -3037000499L) {
+			if (tn > 3037000499L || tn < -3037000499L)
 				throw new ArithmeticException("Result overflow");
-			}
 			tn *= tn;
 		}
 		return r;
@@ -142,12 +313,10 @@ public final class Maths {
 	 * @throws IllegalArgumentException if the input number is negative.
 	 */
 	public static long isqrt(long n) {
-		if (n < 0L) {
+		if (n < 0L)
 			throw new IllegalArgumentException("Negative number");
-		}
-		if ((n & 0XffffffffL) == n) {
+		if ((n & 0XffffffffL) == n)
 			return (int) Math.sqrt((double) n);
-		}
 		long x = 0;
 		long v = n;
 		final long tag = 1L << 62;
@@ -173,22 +342,17 @@ public final class Maths {
 	 */
 	public static boolean isPrime(long n) {
 		// Special cases
-		if (n < 2L) {
+		if (n < 2L)
 			return false;
-		}
-		if (n == 2L || n == 3L) {
+		if (n == 2L || n == 3L)
 			return true;
-		}
-		if ((n & 1) == 0) {
+		if ((n & 1) == 0)
 			return false;
-		}
 		// Core circle
 		long end = isqrt(n);
-		for (long i = 3L; i <= end; i += 2) {
-			if (n % i == 0) {
+		for (long i = 3L; i <= end; i += 2)
+			if (n % i == 0)
 				return false;
-			}
-		}
 		return true;
 	}
 
@@ -206,9 +370,8 @@ public final class Maths {
 	 */
 	public static long[] decPrimes(long n) {
 		// Special cases
-		if (n > -2 && n < 2) {
+		if (n > -2 && n < 2)
 			return new long[] { n };
-		}
 		if (n == Long.MIN_VALUE) {
 			long[] primes = new long[64];
 			Arrays.fill(primes, 2L);
@@ -223,9 +386,8 @@ public final class Maths {
 		// Even number has 2 as decomposition
 		while ((t & 1) == 0) {
 			// Check array capacity
-			if (c == primes.length) {
+			if (c == primes.length)
 				primes = Arrays.copyOf(primes, primes.length + 8);
-			}
 			primes[c++] = 2L;
 			t >>= 1;
 		}
@@ -234,9 +396,8 @@ public final class Maths {
 		while (x <= end) {
 			if (t % x == 0) {
 				// Check array capacity
-				if (c == primes.length) {
+				if (c == primes.length)
 					primes = Arrays.copyOf(primes, primes.length + 8);
-				}
 				primes[c++] = x;
 				t /= x;
 				end = isqrt(t);
@@ -247,9 +408,8 @@ public final class Maths {
 		// Has more value when only a bigger prime
 		if (t > 1) {
 			// Check array capacity
-			if (c == primes.length) {
+			if (c == primes.length)
 				primes = Arrays.copyOf(primes, primes.length + 1);
-			}
 			primes[c++] = t;
 		}
 		return c == primes.length ? primes : Arrays.copyOf(primes, c);
@@ -269,9 +429,8 @@ public final class Maths {
 	 */
 	public static int[] decPrimes(int n) {
 		// Special cases
-		if (n > -2 && n < 2) {
+		if (n > -2 && n < 2)
 			return new int[] { n };
-		}
 		if (n == Integer.MIN_VALUE) {
 			int[] primes = new int[32];
 			Arrays.fill(primes, 2);
@@ -286,9 +445,8 @@ public final class Maths {
 		// Even number has 2 as decomposition
 		while ((t & 1) == 0) {
 			// Check array capacity
-			if (c == primes.length) {
+			if (c == primes.length)
 				primes = Arrays.copyOf(primes, primes.length + 8);
-			}
 			primes[c++] = 2;
 			t >>= 1;
 		}
@@ -297,9 +455,8 @@ public final class Maths {
 		while (x <= end) {
 			if (t % x == 0) {
 				// Check array capacity
-				if (c == primes.length) {
+				if (c == primes.length)
 					primes = Arrays.copyOf(primes, primes.length + 8);
-				}
 				primes[c++] = x;
 				t /= x;
 				end = (int) isqrt(t);
@@ -310,9 +467,8 @@ public final class Maths {
 		// Has more value when only a bigger prime
 		if (t > 1) {
 			// Check array capacity
-			if (c == primes.length) {
+			if (c == primes.length)
 				primes = Arrays.copyOf(primes, primes.length + 1);
-			}
 			primes[c++] = t;
 		}
 		return c == primes.length ? primes : Arrays.copyOf(primes, c);
@@ -329,12 +485,10 @@ public final class Maths {
 	 *                                  overflow.
 	 */
 	public static long factorial(int n) {
-		if (n < 0) {
+		if (n < 0)
 			throw new IllegalArgumentException("Negative number");
-		}
-		if (n > 20) {
+		if (n > 20)
 			throw new ArithmeticException("Result over flow");
-		}
 		long r = 1L;
 		int tn = n;
 		while (tn > 1) {
