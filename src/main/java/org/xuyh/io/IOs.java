@@ -28,6 +28,10 @@ import java.io.OutputStreamWriter;
  */
 public class IOs {
 
+	/*
+	 * Methods for read methods on InputStream.
+	 */
+
 	/**
 	 * Close all resources one by one.
 	 */
@@ -38,12 +42,14 @@ public class IOs {
 			if (null != resources[i])
 				try {
 					resources[i].close();
-				} catch (Exception e) {
+				} catch (Throwable t) {
+					// Silence failed
 				}
 	}
 
 	/**
-	 * Read a file as bytes.
+	 * Read a file as bytes. If failed read like when file not exists or an
+	 * IOException happens, <code>null</code> returns.
 	 */
 	public static byte[] read(String filePath) {
 		if (null == filePath)
@@ -52,7 +58,8 @@ public class IOs {
 	}
 
 	/**
-	 * Read a file as bytes.
+	 * Read a file as bytes. If failed read like when file not exists or an
+	 * IOException happens, <code>null</code> returns.
 	 */
 	public static byte[] read(File file) {
 		if (null == file || !file.exists() || !file.isFile())
@@ -67,7 +74,9 @@ public class IOs {
 	}
 
 	/**
-	 * Cast an input stream as bytes.
+	 * Cast an input stream as bytes. If failed read like when stream not
+	 * exists(<code>null</code>) or an IOException happens, <code>null</code>
+	 * returns.
 	 */
 	public static byte[] read(InputStream inputStream) {
 		if (null == inputStream)
@@ -96,7 +105,8 @@ public class IOs {
 	}
 
 	/**
-	 * Read the text on file.
+	 * Read the text on file. If failed read like when file not exists or an
+	 * IOException happens, <code>null</code> returns.
 	 */
 	public static String readText(String filePath, String charset) {
 		if (null == filePath)
@@ -105,7 +115,8 @@ public class IOs {
 	}
 
 	/**
-	 * Read the text on file.
+	 * Read the text on file. If failed read like when file not exists or an
+	 * IOException happens, <code>null</code> returns.
 	 */
 	public static String readText(File file, String charset) {
 		if (null == file || !file.exists() || !file.isFile())
@@ -120,7 +131,8 @@ public class IOs {
 	}
 
 	/**
-	 * Read the text.
+	 * Read the text. If failed read like when inputStream not exists or an
+	 * IOException happens, <code>null</code> returns.
 	 */
 	public static String readText(InputStream inputStream, String charset) {
 		if (null == inputStream)
@@ -155,7 +167,8 @@ public class IOs {
 	}
 
 	/**
-	 * Load an input stream on input stream in ClassPath.
+	 * Load an input stream on input stream in ClassPath. Returns the opened input
+	 * stream or <code>null</code> if failed.
 	 */
 	public static InputStream loadClassPathStream(String path) {
 		ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
@@ -167,7 +180,8 @@ public class IOs {
 	}
 
 	/**
-	 * Read the resource data in ClassPath.
+	 * Read the resource data in ClassPath. If failed read like stream load failed
+	 * or an IOException happens, <code>null</code> returns.
 	 */
 	public static byte[] readClassPathBytes(String path) {
 		InputStream inputStream = loadClassPathStream(path);
@@ -177,7 +191,8 @@ public class IOs {
 	}
 
 	/**
-	 * Read the text in ClassPath.
+	 * Read the text in ClassPath. If failed read like stream load failed or an
+	 * IOException happens, <code>null</code> returns.
 	 */
 	public static String readClassPathText(String path, String charset) {
 		InputStream inputStream = loadClassPathStream(path);
@@ -186,8 +201,13 @@ public class IOs {
 		return readText(inputStream, charset);
 	}
 
+	/*
+	 * Methods for write methods on OutputStream.
+	 */
+
 	/**
-	 * Write a data to file.
+	 * Write a data to file. Returns <code>false</code> when write failed like an
+	 * IOException happens on write action.
 	 */
 	public static boolean write(byte[] data, String filePath) {
 		if (null == filePath)
@@ -196,7 +216,8 @@ public class IOs {
 	}
 
 	/**
-	 * Write a data to file.
+	 * Write a data to file. Returns <code>false</code> when write failed like an
+	 * IOException happens on write action.
 	 */
 	public static boolean write(byte[] data, File file) {
 		if (null == file || file.isDirectory())
@@ -218,7 +239,8 @@ public class IOs {
 	}
 
 	/**
-	 * Write a data to output stream.
+	 * Write a data to output stream. Returns <code>false</code> when write failed
+	 * like an IOException happens on write action.
 	 */
 	public static boolean write(byte[] data, OutputStream out) {
 		if (null == data)
@@ -234,7 +256,8 @@ public class IOs {
 	}
 
 	/**
-	 * Write a text to file.
+	 * Write a text to file. Returns <code>false</code> when write failed like an
+	 * IOException happens on write action.
 	 */
 	public static boolean writeText(String text, String filePath, String charset) {
 		if (null == filePath)
@@ -243,7 +266,8 @@ public class IOs {
 	}
 
 	/**
-	 * Write a text to file.
+	 * Write a text to file. Returns <code>false</code> when write failed like an
+	 * IOException happens on write action.
 	 */
 	public static boolean writeText(String text, File file, String charset) {
 		if (null == file || file.isDirectory())
@@ -266,7 +290,8 @@ public class IOs {
 	}
 
 	/**
-	 * Write a text to output stream.
+	 * Write a text to output stream. Returns <code>false</code> when write failed
+	 * like an IOException happens on write action.
 	 */
 	public static boolean writeText(String text, OutputStream out, String charset) {
 		if (null == text)
@@ -289,10 +314,14 @@ public class IOs {
 		return true;
 	}
 
+	/*
+	 * Methods for operation on OS file system.
+	 */
+
 	/**
 	 * Copy a file to another File.
 	 * 
-	 * @throws Exception
+	 * @throws Exception when any exception happens
 	 */
 	public static void copyValidFile(File fromFile, File toFile) throws Exception {
 		if (!toFile.getParentFile().exists())
@@ -302,7 +331,7 @@ public class IOs {
 		try {
 			in = new BufferedInputStream(new FileInputStream(fromFile));
 			out = new BufferedOutputStream(new FileOutputStream(toFile));
-			byte[] buffer = new byte[1024];
+			byte[] buffer = new byte[512];
 			for (int len = -1; (len = in.read(buffer)) != -1;) {
 				out.write(buffer, 0, len);
 			}
@@ -324,7 +353,7 @@ public class IOs {
 	/**
 	 * Copy a directory to another directory.
 	 * 
-	 * @throws Exception
+	 * @throws Exception when any exception happens
 	 */
 	public static void copyDir(File fromDir, File toDir) throws Exception {
 		if (!toDir.exists())
@@ -345,7 +374,7 @@ public class IOs {
 	/**
 	 * Copy file-file file-directory directory-directory.
 	 * 
-	 * @throws Exception
+	 * @throws Exception when any exception happens
 	 */
 	public static void copyFile(File fromFile, File toFile) throws Exception {
 		if (fromFile.isDirectory()) {
@@ -359,7 +388,7 @@ public class IOs {
 	/**
 	 * Copy a file or directory into another file or directory.
 	 * 
-	 * @throws Exception
+	 * @throws Exception when any exception happens
 	 */
 	public static void copyFileInto(File fromFile, File toDir) throws Exception {
 		if (!toDir.exists())
@@ -373,7 +402,15 @@ public class IOs {
 	}
 
 	/**
-	 * Delete a file or directory.
+	 * Delete a file or directory. Returns <code>true</code> only when delete
+	 * finish.
+	 *
+	 * @throws SecurityException    If a security manager exists and its
+	 *                              <code>{@link
+	 *          java.lang.SecurityManager#checkWrite(java.lang.String)}</code>
+	 *                              method denies write access to either the old or
+	 *                              new pathnames
+	 * @throws NullPointerException If any parameter is <code>null</code>
 	 */
 	public static boolean deleteFile(File file) {
 		if (null == file || !file.exists())
@@ -385,13 +422,29 @@ public class IOs {
 
 	/**
 	 * Delete all contents of directory, but not the directory itself.
+	 * 
+	 *
+	 * @throws SecurityException    If a security manager exists and its
+	 *                              <code>{@link
+	 *          java.lang.SecurityManager#checkWrite(java.lang.String)}</code>
+	 *                              method denies write access to either the old or
+	 *                              new pathnames
+	 * @throws NullPointerException If any parameter is <code>null</code>
 	 */
 	public static int deleteContents(File dir) {
 		return deleteContents(dir, (FileFilter) null);
 	}
 
 	/**
-	 * Delete some contents of directory, but not the directory itself.
+	 * Delete some contents of directory, but not the directory itself. Returns the
+	 * deleted files(not directory) count.
+	 *
+	 * @throws SecurityException    If a security manager exists and its
+	 *                              <code>{@link
+	 *          java.lang.SecurityManager#checkWrite(java.lang.String)}</code>
+	 *                              method denies write access to either the old or
+	 *                              new pathnames
+	 * @throws NullPointerException If any parameter is <code>null</code>
 	 */
 	public static int deleteContents(File dir, FileFilter filter) {
 		if (null == dir || !dir.exists())
@@ -419,7 +472,15 @@ public class IOs {
 	}
 
 	/**
-	 * Move a file as another one.
+	 * Move a file as another one. Returns <code>true</code> only when move action
+	 * successes.
+	 *
+	 * @throws SecurityException    If a security manager exists and its
+	 *                              <code>{@link
+	 *          java.lang.SecurityManager#checkWrite(java.lang.String)}</code>
+	 *                              method denies write access to either the old or
+	 *                              new pathnames
+	 * @throws NullPointerException If any parameter is <code>null</code>
 	 */
 	public static boolean moveFile(File fromFile, File toFile) {
 		if (!fromFile.exists())
@@ -434,6 +495,13 @@ public class IOs {
 			return false;
 		}
 		return true;
+	}
+
+	/**
+	 * Don't let anyone instantiate this class.
+	 */
+	private IOs() {
+		super();
 	}
 
 }

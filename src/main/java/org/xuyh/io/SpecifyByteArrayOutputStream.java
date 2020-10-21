@@ -12,6 +12,12 @@ import java.io.OutputStream;
  * internal counter keeps track of the next byte to be reset by the
  * <code>write</code> method.
  * <p>
+ * Write methods might be failed when there are not more bytes available to
+ * write into the output stream. If write a byte array, the action ends on an
+ * <code>RuntimeException</code> when required space not enough, that is has
+ * reach the end. For a byte array writing, the pre-data write into the
+ * {@link #buf}.
+ * <p>
  * Closing a {@link SpecifyByteArrayOutputStream} has no effect. The methods in
  * this class can be called after the stream has been closed without generating
  * an {@link java.io.IOException}.
@@ -88,16 +94,14 @@ public class SpecifyByteArrayOutputStream extends OutputStream implements java.i
 	 * <code>write</code> is that one byte is written to the output stream. The byte
 	 * to be written is the eight low-order bits of the argument <code>b</code>. The
 	 * 24 high-order bits of <code>b</code> are ignored.
-	 * <p>
-	 * The action may be silently failed when there has no more remaining bytes can
-	 * be write into this buffer when {@link #available()} value is zero.
 	 * 
+	 * @throws IllegalStateException if the stream reaches the endF
 	 * @see java.io.OutputStream#write(int)
 	 */
 	@Override
 	public synchronized void write(int b) {
 		if (cursor >= end)
-			return;
+			throw new IllegalStateException("EOF");
 		buf[cursor++] = (byte) b;
 	}
 
@@ -112,6 +116,7 @@ public class SpecifyByteArrayOutputStream extends OutputStream implements java.i
 	 * <code>b.length</code>, then only the remaining bytes can be write
 	 * successfully.
 	 * 
+	 * @throws IllegalStateException if the stream space not enough
 	 * @see java.io.OutputStream#write(byte[])
 	 */
 	@Override
@@ -126,23 +131,26 @@ public class SpecifyByteArrayOutputStream extends OutputStream implements java.i
 	 * <code>b</code> are written to the output stream in order; element
 	 * <code>b[off]</code> is the first byte written and <code>b[off+len-1]</code>
 	 * is the last byte written by this operation.
-	 * <p>
-	 * If there is no more bytes can be write in the buffer, the action has nothing
-	 * effect. If the remaining bytes is less than the needed bytes of
-	 * <code>len</code>, then only the remaining bytes can be write successfully.
 	 * 
 	 * @see java.io.OutputStream#write(byte[], int, int)
 	 * @throws IndexOutOfBoundsException if the input array range is out
+	 * @throws IllegalStateException     if the stream space not enough
 	 */
 	@Override
 	public synchronized void write(byte[] b, int off, int len) {
 		if (off < 0 || (off + len) > b.length || (off + len) < off)
 			throw new IndexOutOfBoundsException();
-		len = Math.min(len, end - cursor);
 		if (len <= 0)
 			return;
+		boolean error = false;
+		if (len > end - cursor) {
+			len = end - cursor;
+			error = true;
+		}
 		System.arraycopy(b, off, buf, cursor, len);
 		cursor += len;
+		if (error)
+			throw new IllegalStateException("EOF");
 	}
 
 	/**
