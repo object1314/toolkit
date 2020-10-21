@@ -40,7 +40,7 @@ public class HttpRestErrorHandler {
 	@ResponseBody
 	public RestErrorBody handleThrowable(Throwable ex, WebRequest request, HttpServletResponse response) {
 		logger.info("Handle Throwable-" + ex.getClass().getSimpleName() + ":" + ex.getMessage());
-		return new RestErrorBody(RestErrorCode.Fail, request.toString() + ":" + ex.getMessage());
+		return new RestErrorBody(Code.Fail, request.toString() + ":" + ex.getMessage());
 	}
 
 	/**
@@ -69,10 +69,10 @@ public class HttpRestErrorHandler {
 		 * Initialize this error body.
 		 * 
 		 * @param code    the {@link #status} and the {@link #error} to set by a
-		 *                {@link RestErrorCode} who is non-null
+		 *                {@link Code} who is non-null
 		 * @param message the {@link #message} to set
 		 */
-		public RestErrorBody(RestErrorCode code, String message) {
+		public RestErrorBody(Code code, String message) {
 			super();
 			this.timestamp = TIMESTAMP_FORMATTER.format(LocalDateTime.now(ZoneId.of("+0")));
 			this.status = code.status;
@@ -96,7 +96,7 @@ public class HttpRestErrorHandler {
 	/**
 	 * Custom error codes.
 	 */
-	public static enum RestErrorCode {
+	public static enum Code {
 
 		/** A default fail error code */
 		Fail(999);
@@ -109,7 +109,7 @@ public class HttpRestErrorHandler {
 		/*
 		 * Initialize this code.
 		 */
-		private RestErrorCode(int code) {
+		private Code(int code) {
 			this.status = code;
 			this.type = this.name();
 		}
@@ -117,7 +117,7 @@ public class HttpRestErrorHandler {
 		/*
 		 * Initialize this code.
 		 */
-		private RestErrorCode(int code, String type) {
+		private Code(int code, String type) {
 			this.status = code;
 			this.type = type;
 		}

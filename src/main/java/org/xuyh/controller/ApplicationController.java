@@ -20,7 +20,6 @@ import org.springframework.core.env.PropertyResolver;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
-import org.xuyh.controller.HttpRestErrorHandler.RestErrorCode;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -63,7 +62,7 @@ public class ApplicationController extends HttpRestControllerHandler implements 
 			produces = { "application/json" })
 	@ApiOperation(tags = "List all error codes", value = "List all error codes")
 	public AppErrorCode[] getAppErrorCodes(HttpServletRequest request) throws Throwable {
-		RestErrorCode[] sources = RestErrorCode.values();
+		HttpRestErrorHandler.Code[] sources = HttpRestErrorHandler.Code.values();
 		AppErrorCode[] targets = new AppErrorCode[sources.length];
 		for (int i = 0; i < sources.length; i++)
 			targets[i] = new AppErrorCode(sources[i]);
@@ -217,9 +216,9 @@ public class ApplicationController extends HttpRestControllerHandler implements 
 	 */
 	public static class AppErrorCode {
 
-		private RestErrorCode code;
+		private HttpRestErrorHandler.Code code;
 
-		public AppErrorCode(RestErrorCode code) {
+		public AppErrorCode(HttpRestErrorHandler.Code code) {
 			super();
 			this.code = code;
 		}
