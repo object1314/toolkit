@@ -76,7 +76,7 @@ public class IOs {
 	/**
 	 * Cast an input stream as bytes. If failed read like when stream not
 	 * exists(<code>null</code>) or an IOException happens, <code>null</code>
-	 * returns.
+	 * returns. Notice that the input stream closes here.
 	 */
 	public static byte[] read(InputStream inputStream) {
 		if (null == inputStream)
@@ -132,7 +132,8 @@ public class IOs {
 
 	/**
 	 * Read the text. If failed read like when inputStream not exists or an
-	 * IOException happens, <code>null</code> returns.
+	 * IOException happens, <code>null</code> returns. Notice that the input stream
+	 * closes here.
 	 */
 	public static String readText(InputStream inputStream, String charset) {
 		if (null == inputStream)
@@ -240,7 +241,8 @@ public class IOs {
 
 	/**
 	 * Write a data to output stream. Returns <code>false</code> when write failed
-	 * like an IOException happens on write action.
+	 * like an IOException happens on write action. Notice that the output stream
+	 * doesn't close here.
 	 */
 	public static boolean write(byte[] data, OutputStream out) {
 		if (null == data)
@@ -291,11 +293,13 @@ public class IOs {
 
 	/**
 	 * Write a text to output stream. Returns <code>false</code> when write failed
-	 * like an IOException happens on write action.
+	 * like an IOException happens on write action. Notice that the output stream
+	 * doesn't close here.
 	 */
 	public static boolean writeText(String text, OutputStream out, String charset) {
 		if (null == text)
 			return false;
+		out = new UncloseProxyOutputStream(out);
 		BufferedWriter writer = null;
 		if (null != charset)
 			try {
@@ -309,6 +313,11 @@ public class IOs {
 			writer.flush();
 		} catch (Exception e) {
 			return false;
+		} finally {
+			try {
+				writer.close();
+			} catch (Exception e) {
+			}
 		}
 
 		return true;

@@ -9,13 +9,13 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.util.Collection;
+import java.util.function.Consumer;
 
 /**
  * Operator to manage bits of number or a byte array. Provides some methods on
  * read(get) or write(put) in some java types.
  * <p>
- * Short names: 'U'--unsigned; 'R'--reverse(smallEndian).
+ * Short names: 'U'--unsigned; 'R'--reverse(bytes reversed, smallEndian).
  * 
  * @author XuYanhang
  * @since 2020-10-21
@@ -36,7 +36,9 @@ public class Bits {
 	 * @return bit value of 0 or 1 at specified bit
 	 */
 	public static int getBit(byte[] data, int pos, int bitPos) {
-		return (data[pos] >> (bitPos & 0X7)) & 1;
+		if (bitPos < 0 || bitPos > 7)
+			throw new IllegalArgumentException();
+		return (data[pos] >> bitPos) & 0X1;
 	}
 
 	/**
@@ -505,22 +507,22 @@ public class Bits {
 	 * bytes.
 	 * 
 	 * @see ObjectInputStream#readObject()
-	 * @param data      source byte array data
-	 * @param pos       byte position in data
-	 * @param container container to storage all objects
-	 * @param count     objects count
+	 * @param data     source byte array data
+	 * @param pos      byte position in data
+	 * @param consumer consumer to cost all objects
+	 * @param count    objects count
 	 * @return the objects value in array
 	 * @throws IllegalStateException if fail to get the object on IOException or
 	 *                               ClassNotFoundException
 	 */
 	@SuppressWarnings("unchecked")
-	public static <T> void getObjects(byte[] data, int pos, Collection<T> container, int count) {
-		if (null == container)
+	public static <T> void getObjects(byte[] data, int pos, Consumer<T> consumer, int count) {
+		if (null == consumer)
 			throw new NullPointerException();
 		ByteArrayInputStream bais = new ByteArrayInputStream(data, pos, data.length - pos);
 		try (ObjectInputStream ois = new ObjectInputStream(bais)) {
 			for (int i = 0; i < count; i++)
-				container.add((T) ois.readObject());
+				consumer.accept((T) ois.readObject());
 		} catch (IOException | ClassNotFoundException e) {
 			throw new IllegalStateException(e);
 		}
@@ -540,8 +542,9 @@ public class Bits {
 	 * @param bit    bit value of 0 or 1 to put at specified bit
 	 */
 	public static void putBit(byte[] data, int pos, int bitPos, int bit) {
-		bitPos &= 0X7;
-		if ((bit & 1) == 0)
+		if (bitPos < 0 || bitPos > 7)
+			throw new IllegalArgumentException();
+		if ((bit & 0X1) == 0)
 			data[pos] &= (~(1 << bitPos));
 		else
 			data[pos] |= (1 << bitPos);
@@ -583,8 +586,8 @@ public class Bits {
 	 * @return bytes count on put into this data
 	 */
 	public static int putChar(byte[] data, int pos, int c) {
-		data[pos + 1] = (byte) c;
 		data[pos] = (byte) (c >>> 8);
+		data[pos + 1] = (byte) c;
 		return 2;
 	}
 
@@ -613,8 +616,8 @@ public class Bits {
 	 * @return bytes count on put into this data
 	 */
 	public static int putShort(byte[] data, int pos, int val) {
-		data[pos + 1] = (byte) val;
 		data[pos] = (byte) (val >>> 8);
+		data[pos + 1] = (byte) val;
 		return 2;
 	}
 
@@ -642,10 +645,10 @@ public class Bits {
 	 * @return bytes count on put into this data
 	 */
 	public static int putInt(byte[] data, int pos, int val) {
-		data[pos + 3] = (byte) val;
-		data[pos + 2] = (byte) (val >>> 8);
-		data[pos + 1] = (byte) (val >>> 16);
 		data[pos] = (byte) (val >>> 24);
+		data[pos + 1] = (byte) (val >>> 16);
+		data[pos + 2] = (byte) (val >>> 8);
+		data[pos + 3] = (byte) val;
 		return pos;
 	}
 
@@ -702,14 +705,14 @@ public class Bits {
 	 * @return bytes count on put into this data
 	 */
 	public static int putLong(byte[] data, int pos, long val) {
-		data[pos + 7] = (byte) val;
-		data[pos + 6] = (byte) (val >>> 8);
-		data[pos + 5] = (byte) (val >>> 16);
-		data[pos + 4] = (byte) (val >>> 24);
-		data[pos + 3] = (byte) (val >>> 32);
-		data[pos + 2] = (byte) (val >>> 40);
-		data[pos + 1] = (byte) (val >>> 48);
 		data[pos] = (byte) (val >>> 56);
+		data[pos + 1] = (byte) (val >>> 48);
+		data[pos + 2] = (byte) (val >>> 40);
+		data[pos + 3] = (byte) (val >>> 32);
+		data[pos + 4] = (byte) (val >>> 24);
+		data[pos + 5] = (byte) (val >>> 16);
+		data[pos + 6] = (byte) (val >>> 8);
+		data[pos + 7] = (byte) val;
 		return 8;
 	}
 
@@ -767,13 +770,15 @@ public class Bits {
 	 * @param pos  byte position in data
 	 * @param b    byte value to fill
 	 * @param size bytes size to fill
+	 * @return the <code>size</code>
 	 */
-	public static void fill(byte[] data, int pos, int b, int size) {
+	public static int fill(byte[] data, int pos, int b, int size) {
 		int end = pos + size;
 		if (pos < 0 || end > data.length || pos > end)
 			throw new IndexOutOfBoundsException();
 		for (int i = pos; i < end; i++)
 			data[i] = (byte) b;
+		return size;
 	}
 
 	/**
@@ -1005,12 +1010,12 @@ public class Bits {
 	}
 
 	/*
-	 * Methods to update byte arrays.
+	 * Methods to help convert data
 	 */
 
 	/**
 	 * Returns the created bytes in a list of bytes in integer values where only the
-	 * last 8 bits used.
+	 * lower 8 bits used.
 	 * 
 	 * @param bs source bytes in integer formats
 	 * @return created bytes
@@ -1024,37 +1029,175 @@ public class Bits {
 	}
 
 	/**
-	 * Reverse the bytes order in specified range of a bytes, required
-	 * <code>len</code> bytes.
-	 * 
-	 * @param data source byte array data
-	 * @param pos  start position
-	 * @param len  length to adjust
+	 * Convert a list of bits as byte array. The bits value loaded only on lower bit
+	 * position where <code>bit=bit&0X1</code>. If convert the bytes as integer or
+	 * long etc., then load in in a bits reversed way.
+	 * <p>
+	 * Example, the bits of 1, 0, 1, 1, 1, 0, 1, 1, 1, 0 will cause a two length
+	 * bytes of 10111011, 10000000 where the order is on from higher to lower.
+	 *
+	 * @param bits bits value in 0 or 1
+	 * @return the bytes on the bits
 	 */
-	public static void reverse(byte[] data, int pos, int len) {
-		int end = pos + len;
-		if (pos < 0 || end > data.length || pos > end)
-			throw new IndexOutOfBoundsException();
-		for (int i = pos, j = end - 1; i < j; i++, j--) {
-			byte tmp = data[i];
-			data[i] = data[j];
-			data[j] = tmp;
-		}
+	public static byte[] makeBits(int... bits) {
+		int bil = bits.length;
+		int byl = (bil >> 3) + ((bil & 7) == 0 ? 0 : 1);
+		byte[] bytes = new byte[byl];
+		for (int i = 0, j = 0; j < bil; i++)
+			for (int t = 7; t > -1 && j < bil; t--, j++)
+				bytes[i] |= (bits[j] & 0X1) << t;
+		return bytes;
 	}
 
-	/*
-	 * Methods to help convert data
+	/**
+	 * Convert a list of bits as a byte. The bits value loaded only on lower bit
+	 * position where <code>bit=bit&0X1</code>. Most 8 bits fetched here.
+	 * <p>
+	 * Different with {@link #makeBits(int...)} the order is on from lower to
+	 * higher.
+	 *
+	 * @param bits bits value in 0 or 1
+	 * @return the byte on the bits
 	 */
+	public static byte makeBitsAsByte(int... bits) {
+		int bil = bits.length > 8 ? 8 : bits.length;
+		byte val = 0;
+		for (int i = 0; i < bil; i++)
+			val |= (bits[i] & 0X1) << i;
+		return val;
+	}
 
 	/**
-	 * Returns the bit value at specified bit position.
-	 * 
-	 * @param src    source value
-	 * @param bitPos bit position in the source value
-	 * @return bit value of 0 or 1 at specified bit
+	 * Convert a list of bits as a short. The bits value loaded only on lower bit
+	 * position where <code>bit=bit&0X1</code>. Most 16 bits fetched here.
+	 * <p>
+	 * Different with {@link #makeBits(int...)} the order is on from lower to
+	 * higher.
+	 *
+	 * @param bits bits value in 0 or 1
+	 * @return the short on the bits
 	 */
-	public static int getBit(byte src, int bitPos) {
-		return ((src & 0Xff) >>> bitPos) & 0X1;
+	public static short makeBitsAsShort(int... bits) {
+		int bil = bits.length > 16 ? 16 : bits.length;
+		short val = 0;
+		for (int i = 0; i < bil; i++)
+			val |= (bits[i] & 0X1) << i;
+		return val;
+	}
+
+	/**
+	 * Convert a list of bits as a integer. The bits value loaded only on lower bit
+	 * position where <code>bit=bit&0X1</code>. Most 32 bits fetched here.
+	 * <p>
+	 * Different with {@link #makeBits(int...)} the order is on from lower to
+	 * higher.
+	 *
+	 * @param bits bits value in 0 or 1
+	 * @return the integer on the bits
+	 */
+	public static int makeBitsAsInt(int... bits) {
+		int bil = bits.length > 32 ? 32 : bits.length;
+		int val = 0;
+		for (int i = 0; i < bil; i++)
+			val |= (bits[i] & 0X1) << i;
+		return val;
+	}
+
+	/**
+	 * Convert a list of bits as a long integer. The bits value loaded only on lower
+	 * bit position where <code>bit=bit&0X1</code>. Most 64 bits fetched here.
+	 * <p>
+	 * Different with {@link #makeBits(int...)} the order is on from lower to
+	 * higher.
+	 *
+	 * @param bits bits value in 0 or 1
+	 * @return the long integer on the bits
+	 */
+	public static long makeBitsAsLong(int... bits) {
+		int bil = bits.length > 64 ? 64 : bits.length;
+		long val = 0;
+		for (int i = 0; i < bil; i++)
+			val |= (bits[i] & 0X1L) << i;
+		return val;
+	}
+
+	/**
+	 * Returns the bits in string of a byte array as bits string like
+	 * "0110001111110000" from value of 01100011, 11110000 on order from higher to
+	 * lower.
+	 * 
+	 * @param data    source data to load bits.
+	 * @param bitSize the size of the bits
+	 * @return the bits in string of '0' and '1', split by ' ' each 8 bits
+	 */
+	public static String dumpBits(byte[] data, int bitSize) {
+		if (bitSize < 0)
+			throw new IllegalArgumentException();
+		if (0 == bitSize)
+			return "";
+		int byteSize = (bitSize >> 3) + ((bitSize & 0X7) == 0 ? 0 : 1);
+		int charSize = bitSize + byteSize - 1;
+		char[] bits = new char[charSize];
+		for (int i = 0, j = 0; i < byteSize; i++) {
+			byte v = i < data.length ? data[i] : 0;
+			for (int t = 7; t > -1 && j < charSize; t--, j++)
+				bits[j] = ((v >>> t) & 0X1) == 0 ? '0' : '1';
+			if (j < charSize)
+				bits[j++] = ' ';
+		}
+		return new String(bits);
+	}
+
+	/**
+	 * Returns the bits in string of an integer value as bits string like "01100011"
+	 * from value of 01100011 on order from higher to lower.
+	 * 
+	 * @param val     source value to load bits.
+	 * @param bitSize the size of the bits
+	 * @return the bits in string of '0' and '1', split by ' ' each 8 bits
+	 */
+	public static String dumpValBits(int val, int bitSize) {
+		if (bitSize < 0)
+			throw new IllegalArgumentException();
+		if (0 == bitSize)
+			return "";
+		int charSize = bitSize + (bitSize >> 3) - ((bitSize & 0X7) == 0 ? 1 : 0);
+		char[] bits = new char[charSize];
+		for (int i = bitSize - 1, j = 0, c = 0; i > -1; i--) {
+			if (i > 31)
+				bits[j++] = '0';
+			else
+				bits[j++] = ((val >>> i) & 0X1) == 0 ? '0' : '1';
+			if ((++c & 0X7) == 0 && j < charSize)
+				bits[j++] = ' ';
+		}
+		return new String(bits);
+	}
+
+	/**
+	 * Returns the bits in string of a long integer value as bits string like
+	 * "01100011" from value of 01100011 on order from higher to lower.
+	 * 
+	 * @param val     source value to load bits.
+	 * @param bitSize the size of the bits
+	 * @return the bits in string of '0' and '1', split by ' ' each 8 bits
+	 */
+	public static String dumpValBits(long val, int bitSize) {
+		if (bitSize < 0)
+			throw new IllegalArgumentException();
+		if (0 == bitSize)
+			return "";
+		int charSize = bitSize + (bitSize >> 3) - ((bitSize & 0X7) == 0 ? 1 : 0);
+		char[] bits = new char[charSize];
+		for (int i = bitSize - 1, j = 0, c = 0; i > -1; i--) {
+			if (i > 63)
+				bits[j++] = '0';
+			else
+				bits[j++] = (((int) (val >>> i)) & 0X1) == 0 ? '0' : '1';
+			if ((++c & 0X7) == 0 && j < charSize)
+				bits[j++] = ' ';
+		}
+		return new String(bits);
 	}
 
 	/**
@@ -1065,6 +1208,8 @@ public class Bits {
 	 * @return bit value of 0 or 1 at specified bit
 	 */
 	public static int getBit(int src, int bitPos) {
+		if (bitPos < 0 || bitPos > 31)
+			return 0;
 		return (src >>> bitPos) & 0X1;
 	}
 
@@ -1076,6 +1221,8 @@ public class Bits {
 	 * @return bit value of 0 or 1 at specified bit
 	 */
 	public static int getBit(long src, int bitPos) {
+		if (bitPos < 0 || bitPos > 63)
+			return 0;
 		return (int) ((src >>> bitPos) & 0X1);
 	}
 
@@ -1087,7 +1234,9 @@ public class Bits {
 	 * @param bit    bit of 1 or 0 to set the bit
 	 * @return target value
 	 */
-	public static int setBit(byte src, int bitPos, int bit) {
+	public static byte setBit(byte src, int bitPos, int bit) {
+		if (bitPos < 0 || bitPos > 7)
+			return src;
 		if ((bit & 1) == 0)
 			src &= (~(1 << bitPos));
 		else
@@ -1104,6 +1253,8 @@ public class Bits {
 	 * @return target value
 	 */
 	public static int setBit(int src, int bitPos, int bit) {
+		if (bitPos < 0 || bitPos > 31)
+			return src;
 		if ((bit & 1) == 0)
 			src &= (~(1 << bitPos));
 		else
@@ -1120,6 +1271,8 @@ public class Bits {
 	 * @return target value
 	 */
 	public static long setBit(long src, int bitPos, int bit) {
+		if (bitPos < 0 || bitPos > 53)
+			return src;
 		if ((bit & 1) == 0)
 			src &= (~(1L << bitPos));
 		else
@@ -1128,32 +1281,175 @@ public class Bits {
 	}
 
 	/**
-	 * Returns a bytes order reversed short value, on 2 bytes.
+	 * Reverse the bits order in specified range of a bytes, required
+	 * <code>len</code> bytes.
 	 * 
-	 * @param val the origin value
-	 * @return reversed value
+	 * @param data source byte array data
+	 * @param pos  start position
+	 * @param len  length to adjust
 	 */
-	public static short reverseShort(short val) {
-		return (short) ((val << 8) | (val >>> 8));
+	public static void reverseBits(byte[] data, int pos, int len) {
+		reverseBytes(data, pos, len);
+		for (int i = pos + len - 1; i >= pos; i--)
+			data[i] = reverseByteBits(data[i]);
 	}
 
 	/**
-	 * Returns a bytes order reversed char value, on 2 bytes.
-	 * 
+	 * Returns a bits order reversed byte value, on 1 bytes, 8 bits.
+	 *
 	 * @param val the origin value
 	 * @return reversed value
 	 */
-	public static char reverseChar(char val) {
-		return (char) ((val << 8) | (val >>> 8));
+	public static byte reverseByteBits(byte val) {
+		int i = val & 0Xff;
+		i = (i & 0X55) << 1 | (i >>> 1) & 0X55;
+		i = (i & 0X33) << 2 | (i >>> 2) & 0X33;
+		i = (i & 0X0f) << 4 | (i >>> 4) & 0X0f;
+		return (byte) i;
+	}
+
+	/**
+	 * Returns a bits order reversed short value, on 2 bytes, 16 bits.
+	 *
+	 * @param val the origin value
+	 * @return reversed value
+	 */
+	public static short reverseShortBits(short val) {
+		int i = val & 0Xffff;
+		i = (i & 0X5555) << 1 | (i >>> 1) & 0X5555;
+		i = (i & 0X3333) << 2 | (i >>> 2) & 0X3333;
+		i = (i & 0X0f0f) << 4 | (i >>> 4) & 0X0f0f;
+		i = (i & 0X00ff) << 8 | (i >>> 8) & 0X00ff;
+		return (short) i;
+	}
+
+	/**
+	 * Returns a bits order reversed int value, on 4 bytes, 32 bits.
+	 * 
+	 * @see Integer#reverse(int)
+	 * @param val the origin value
+	 * @return reversed value
+	 */
+	public static int reverseIntBits(int val) {
+		val = (val & 0X55555555) << 1 | (val >>> 1) & 0X55555555;
+		val = (val & 0X33333333) << 2 | (val >>> 2) & 0X33333333;
+		val = (val & 0X0f0f0f0f) << 4 | (val >>> 4) & 0X0f0f0f0f;
+		val = (val & 0X00ff00ff) << 8 | (val >>> 8) & 0X00ff00ff;
+		return (val & 0Xffff) << 16 | (val >>> 16) & 0Xffff;
+	}
+
+	/**
+	 * Returns a bits order reversed long value, on 8 bytes, 64 bits.
+	 * 
+	 * @see Long#reverse(long)
+	 * @param val the origin value
+	 * @return reversed value
+	 */
+	public static long reverseLongBits(long val) {
+		val = (val & 0X5555555555555555L) << 1 | (val >>> 1) & 0X5555555555555555L;
+		val = (val & 0X3333333333333333L) << 2 | (val >>> 2) & 0X3333333333333333L;
+		val = (val & 0X0f0f0f0f0f0f0f0fL) << 4 | (val >>> 4) & 0X0f0f0f0f0f0f0f0fL;
+		val = (val & 0X00ff00ff00ff00ffL) << 8 | (val >>> 8) & 0X00ff00ff00ff00ffL;
+		return (val << 48) | ((val & 0Xffff0000L) << 16) | ((val >>> 16) & 0Xffff0000L) | (val >>> 48);
+	}
+
+	/**
+	 * Returns a bits order reversed integer value on specified bits, on most 32
+	 * bits.
+	 * 
+	 * @param val     the origin value
+	 * @param bitSize the bits size of this value
+	 * @return reversed value
+	 */
+	public static int reverseValBits(int val, int bitSize) {
+		if (bitSize < 0)
+			throw new IllegalArgumentException();
+		if (bitSize == 0 || bitSize > 63)
+			return 0;
+		if ((bitSize & 0X7) == 0) {
+			val = reverseValBytes(val, bitSize >> 3);
+			val = (val & 0X55555555) << 1 | (val >>> 1) & 0X55555555;
+			val = (val & 0X33333333) << 2 | (val >>> 2) & 0X33333333;
+			val = (val & 0X0f0f0f0f) << 4 | (val >>> 4) & 0X0f0f0f0f;
+			return val;
+		}
+		int result = 0;
+		for (int i = 0, j = bitSize - 1; i < j; i++, j--) {
+			if (j < 32)
+				result |= (val << (j - i)) & (0X1 << j);
+			if (j - i < 32)
+				result |= (val >> (j - i)) & (0X1 << i);
+		}
+		return result;
+	}
+
+	/**
+	 * Returns a bits order reversed long value, on most 64 bits.
+	 * 
+	 * @param val     the origin value
+	 * @param bitSize the bits size of this value
+	 * @return reversed value
+	 */
+	public static long reverseValBits(long val, int bitSize) {
+		if (bitSize < 0)
+			throw new IllegalArgumentException();
+		if (bitSize == 0 || bitSize > 127)
+			return 0L;
+		if ((bitSize & 0X7) == 0) {
+			val = reverseValBytes(val, bitSize >> 3);
+			val = (val & 0X5555555555555555L) << 1 | (val >>> 1) & 0X5555555555555555L;
+			val = (val & 0X3333333333333333L) << 2 | (val >>> 2) & 0X3333333333333333L;
+			val = (val & 0X0f0f0f0f0f0f0f0fL) << 4 | (val >>> 4) & 0X0f0f0f0f0f0f0f0fL;
+			return val;
+		}
+		long result = 0;
+		for (int i = 0, j = bitSize - 1; i < j; i++, j--) {
+			if (j < 64)
+				result |= (val << (j - i)) & (0X1L << j);
+			if (j - i < 64)
+				result |= (val >> (j - i)) & (0X1L << i);
+		}
+		return result;
+	}
+
+	/**
+	 * Reverse the bytes order in specified range of a bytes, required
+	 * <code>len</code> bytes.
+	 * 
+	 * @param data source byte array data
+	 * @param pos  start position
+	 * @param len  length to adjust
+	 */
+	public static void reverseBytes(byte[] data, int pos, int len) {
+		int end = pos + len;
+		if (pos < 0 || end > data.length || pos > end)
+			throw new IndexOutOfBoundsException();
+		for (int i = pos, j = end - 1; i < j; i++, j--) {
+			byte tmp = data[i];
+			data[i] = data[j];
+			data[j] = tmp;
+		}
+	}
+
+	/**
+	 * Returns a bytes order reversed short value, on 2 bytes.
+	 *
+	 * @see Short#reverseBytes(short)
+	 * @param val the origin value
+	 * @return reversed value
+	 */
+	public static short reverseShortBytes(short val) {
+		return (short) ((val << 8) | ((val & 0Xff00) >>> 8));
 	}
 
 	/**
 	 * Returns a bytes order reversed int value, on 4 bytes.
 	 * 
+	 * @see Integer#reverseBytes(int)
 	 * @param val the origin value
 	 * @return reversed value
 	 */
-	public static int reverseInt(int val) {
+	public static int reverseIntBytes(int val) {
 		return (val << 24) //
 				| ((val << 8) & 0X00ff0000) //
 				| ((val >>> 8) & 0X0000ff00) //
@@ -1163,10 +1459,11 @@ public class Bits {
 	/**
 	 * Returns a bytes order reversed long value, on 8 bytes.
 	 * 
+	 * @see Long#reverseBytes(long)
 	 * @param val the origin value
 	 * @return reversed value
 	 */
-	public static long reverseLong(long val) {
+	public static long reverseLongBytes(long val) {
 		return (val << 56) //
 				| ((val << 40) & 0X00ff000000000000L) //
 				| ((val << 24) & 0X0000ff0000000000L) //
@@ -1175,6 +1472,74 @@ public class Bits {
 				| ((val >>> 24) & 0X0000000000ff0000L) //
 				| ((val >>> 40) & 0X000000000000ff00L) //
 				| (val >>> 56);
+	}
+
+	/**
+	 * Returns a bytes order reversed integer value in specified bytes size, on most
+	 * 4 bytes.
+	 * 
+	 * @param val  the origin value
+	 * @param size the bytes size of this value
+	 * @return reversed value
+	 */
+	public static int reverseValBytes(int val, int size) {
+		if (size < 0)
+			throw new IllegalArgumentException();
+		if (size > 7)
+			return 0;
+		switch (size) {
+		case 0:
+			return 0;
+		case 1:
+			return val & 0Xff;
+		case 2:
+			return ((val & 0Xff) << 8) | ((val & 0Xff00) >>> 8);
+		case 4:
+			return reverseIntBytes(val);
+		}
+		int result = 0;
+		for (int i = 0, j = (size - 1) << 3; i < j; i += 8, j -= 8) {
+			if (j < 32)
+				result |= (val << (j - i)) & (0Xff << j);
+			if (j - i < 32)
+				result |= (val >> (j - i)) & (0Xff << i);
+		}
+		return result;
+	}
+
+	/**
+	 * Returns a bytes order reversed long integer value in specified bytes size, on
+	 * most 8 bytes.
+	 * 
+	 * @param val  the origin value
+	 * @param size the bytes size of this value
+	 * @return reversed value
+	 */
+	public static long reverseValBytes(long val, int size) {
+		if (size < 0)
+			throw new IllegalArgumentException();
+		if (size > 15)
+			return 0L;
+		switch (size) {
+		case 0:
+			return 0;
+		case 1:
+			return val & 0XffL;
+		case 2:
+			return ((val & 0XffL) << 8) | ((val & 0Xff00L) >>> 8);
+		case 4:
+			return reverseIntBytes((int) val) & 0XffffffffL;
+		case 8:
+			return reverseLongBytes(val);
+		}
+		long result = 0;
+		for (int i = 0, j = (size - 1) << 3; i < j; i += 8, j -= 8) {
+			if (j < 64)
+				result |= (val << (j - i)) & (0XffL << j);
+			if (j - i < 64)
+				result |= (val >> (j - i)) & (0XffL << i);
+		}
+		return result;
 	}
 
 	/**

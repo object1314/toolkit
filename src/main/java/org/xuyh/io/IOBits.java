@@ -9,13 +9,13 @@ import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
-import java.util.Collection;
+import java.util.function.Consumer;
 
 /**
  * Operator to manage bits on IO stream. Provides some methods on read(get) or
  * write(set) in some java types.
  * <p>
- * Short names: 'U'--unsigned; 'R'--reverse(smallEndian).
+ * Short names: 'U'--unsigned; 'R'--reverse(bytes reversed,smallEndian).
  * 
  * @author XuYanhang
  * @since 2020-10-21
@@ -483,21 +483,21 @@ public class IOBits {
 	 * length bytes.
 	 * 
 	 * @see ObjectInputStream#readObject()
-	 * @param in         source to load data
-	 * @param collection collection to storage all objects
-	 * @param count      objects count
+	 * @param in       source to load data
+	 * @param consumer consumer to cost all objects
+	 * @param count    objects count
 	 * @return the objects value in array
 	 * @throws IllegalStateException if fail to get the object on IOException or
 	 *                               ClassNotFoundException
 	 */
 	@SuppressWarnings("unchecked")
-	public static <T> void getObjects(InputStream in, Collection<T> collection, int count) {
-		if (null == collection)
+	public static <T> void getObjects(InputStream in, Consumer<T> consumer, int count) {
+		if (null == consumer)
 			throw new NullPointerException();
 		UncloseProxyInputStream pin = new UncloseProxyInputStream(in);
 		try (ObjectInputStream ois = new ObjectInputStream(pin)) {
 			for (int i = 0; i < count; i++)
-				collection.add((T) ois.readObject());
+				consumer.accept((T) ois.readObject());
 		} catch (IOException | ClassNotFoundException e) {
 			throw new IllegalStateException(e);
 		}
@@ -755,6 +755,7 @@ public class IOBits {
 	 * @param out  target to write data
 	 * @param b    byte value to fill
 	 * @param size bytes size to fill
+	 * @return this <code>size</code>
 	 * @throw IllegalStateException when an IO exception happens
 	 */
 	public static int fill(OutputStream out, int b, int size) {
