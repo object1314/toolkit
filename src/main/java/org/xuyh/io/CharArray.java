@@ -64,6 +64,43 @@ public final class CharArray
 	}
 
 	/**
+	 * Creates {@link CharArray} that uses chars in the <code>CharSequence</code> as
+	 * its {@link #value}. The initial value of {@link #off} is 0, The initial value
+	 * of {@link #len} is <code>cs.length()</code>. The value array is copied.
+	 * 
+	 * @param cs create on a given char sequence
+	 */
+	public CharArray(CharSequence cs) {
+		this(cs, 0, cs.length());
+	}
+
+	/**
+	 * Creates {@link CharArray} that uses chars in the <code>CharSequence</code> as
+	 * its {@link #value}. The initial value of {@link #off} is <code>0</code>, The
+	 * initial value of {@link #len} is <code>len</code>. The value array is copied.
+	 * 
+	 * @param cs  create on a given char sequence
+	 * @param off offset of the char sequence from
+	 * @param len length of the char sequence from
+	 */
+	public CharArray(CharSequence cs, int off, int len) {
+		super();
+		if (off < 0 || off + len > cs.length() || off > off + len)
+			throw new IndexOutOfBoundsException();
+		this.off = 0;
+		this.len = len;
+		this.value = new char[len];
+		if (cs instanceof CharArray) {
+			CharArray src = (CharArray) cs;
+			System.arraycopy(src.value, src.off + off, this.value, this.off, len);
+		} else {
+			int i = 0, j = off;
+			while (i < len)
+				value[i++] = cs.charAt(j++);
+		}
+	}
+
+	/**
 	 * Returns the managed origin character array in this {@link CharArray}.
 	 * 
 	 * @return the {@link #value}
@@ -76,10 +113,10 @@ public final class CharArray
 	 * Returns the managed origin character array's offset in this
 	 * {@link CharArray}.
 	 * 
-	 * @return the {@link #offset}
+	 * @return the {@link #off offset}
 	 */
-	public char[] offset() {
-		return value;
+	public int offset() {
+		return off;
 	}
 
 	/**
@@ -104,13 +141,44 @@ public final class CharArray
 	}
 
 	/**
-	 * @see java.lang.CharSequence#charAt(int)
+	 * Returns the <code>char</code> value at the specified index. An index ranges
+	 * from zero to <tt>length() - 1</tt>. The first <code>char</code> value of the
+	 * array is at index zero, the next at index one, and so on, as for array
+	 * indexing.
+	 *
+	 * @param index the index of the <code>char</code> value to be returned
+	 * @return the specified <code>char</code> value
+	 * @throws IndexOutOfBoundsException if the <tt>index</tt> argument is negative
+	 *                                   or not less than <tt>length()</tt>
 	 */
 	@Override
 	public char charAt(int index) {
 		if (index < 0 || index >= len)
 			throw new IndexOutOfBoundsException();
 		return value[index + off];
+	}
+
+	/**
+	 * @see #charAt(int)
+	 */
+	public char getChar(int index) {
+		if (index < 0 || index >= len)
+			throw new IndexOutOfBoundsException();
+		return value[index + off];
+	}
+
+	/**
+	 * Set the char as a specified value at specified position.
+	 * 
+	 * @param index specified position to set
+	 * @param c     specified char value to set
+	 * @return this
+	 */
+	public CharArray setChar(int index, char c) {
+		if (index < 0 || index >= len)
+			throw new IndexOutOfBoundsException();
+		value[index + off] = c;
+		return this;
 	}
 
 	/**
@@ -131,7 +199,7 @@ public final class CharArray
 	 * @throws IndexOutOfBoundsException if the {@code index} argument is negative
 	 *                                   or not less than the length of this string.
 	 */
-	public int codePointAt(int index) {
+	public int getCodePoint(int index) {
 		if (index < 0 || index >= len)
 			throw new IndexOutOfBoundsException();
 		return Character.codePointAt(value, index + off, len + off);
@@ -157,10 +225,52 @@ public final class CharArray
 	 * @throws IndexOutOfBoundsException if the {@code index} argument is less than
 	 *                                   1 or greater than the length of this array.
 	 */
-	public int codePointBefore(int index) {
+	public int getCodePointBefore(int index) {
 		if (index < 1 || index > len)
 			throw new IndexOutOfBoundsException();
 		return Character.codePointBefore(value, index + off, off);
+	}
+
+	/**
+	 * Set the codes as a specified value at specified position.
+	 * 
+	 * @param index specified position to set
+	 * @param c     specified code value to set
+	 * @return this
+	 */
+	public CharArray setCodePoint(int index, int c) {
+		if (!Character.isValidCodePoint(c))
+			throw new IllegalArgumentException("illegal code");
+		if (c < Character.MIN_SUPPLEMENTARY_CODE_POINT) {
+			if (index < 0 || index >= len)
+				throw new IndexOutOfBoundsException();
+			value[index + off] = (char) c;
+		} else {
+			if (index < 0 || index >= len - 1)
+				throw new IndexOutOfBoundsException();
+			value[index + off] = Character.highSurrogate(c);
+			value[index + off + 1] = Character.lowSurrogate(c);
+		}
+		return this;
+	}
+
+	/**
+	 * Put a charSequence into the char array.
+	 * 
+	 * @param index specified position of this array to set
+	 * @param cs    charSequence to put
+	 * @return this
+	 */
+	public CharArray putSequence(int index, CharSequence cs) {
+		int srcLen = cs.length();
+		if (index < 0 || index > len || srcLen > len - index)
+			throw new IndexOutOfBoundsException();
+		if (cs instanceof CharArray)
+			System.arraycopy(((CharArray) cs).value, ((CharArray) cs).off, value, off + index, srcLen);
+		else
+			for (int i = 0, j = off + index; i < srcLen;)
+				value[j++] = cs.charAt(i++);
+		return this;
 	}
 
 	/**
@@ -209,42 +319,6 @@ public final class CharArray
 		if (index < 0 || index > len)
 			throw new IndexOutOfBoundsException();
 		return Character.offsetByCodePoints(value, off, len, index + off, codePointOffset) - off;
-	}
-
-	/**
-	 * Set the char as a specified value at specified position.
-	 * 
-	 * @param index specified position to set
-	 * @param c     specified char value to set
-	 */
-	public void setChar(int index, int c) {
-		if (c != (char) c)
-			throw new IllegalArgumentException("illegal char");
-		if (index < 0 || index >= len)
-			throw new IndexOutOfBoundsException();
-		value[index + off] = (char) c;
-	}
-
-	/**
-	 * Set the codes as a specified value at specified position.
-	 * 
-	 * @param index specified position to set
-	 * @param c     specified code value to set
-	 */
-	public CharArray setCodePoint(int index, int c) {
-		if (!Character.isValidCodePoint(c))
-			throw new IllegalArgumentException("illegal code");
-		if (c < Character.MIN_SUPPLEMENTARY_CODE_POINT) {
-			if (index < 0 || index >= len)
-				throw new IndexOutOfBoundsException();
-			value[index + off] = (char) c;
-		} else {
-			if (index < 0 || index >= len - 1)
-				throw new IndexOutOfBoundsException();
-			value[index + off] = Character.highSurrogate(c);
-			value[index + off + 1] = Character.lowSurrogate(c);
-		}
-		return this;
 	}
 
 	/**
@@ -346,6 +420,61 @@ public final class CharArray
 	}
 
 	/**
+	 * Returns the index within this array of the first occurrence of the specified
+	 * subsequence. If no such value exists, then {@code -1} is returned.
+	 *
+	 * @param cs the subsequence to search for.
+	 * @return the index of the first occurrence of the specified subsequence, or
+	 *         {@code -1} if there is no such occurrence.
+	 */
+	public int indexOf(CharSequence cs) {
+		return indexOf(cs, 0);
+	}
+
+	/**
+	 * Returns the index within this char array of the first occurrence of the
+	 * specified subsequence, starting the search at the specified index. If no such
+	 * value exists, then {@code -1} is returned.
+	 *
+	 * @param cs        the subsequence to search for
+	 * @param fromIndex the index from which to start the search
+	 * @return the index of the first occurrence of the specified subsequence,
+	 *         starting at the specified index, or {@code -1} if there is no such
+	 *         occurrence.
+	 */
+	public int indexOf(CharSequence cs, int fromIndex) {
+
+		int clen = cs.length();
+		if (fromIndex < 0)
+			fromIndex = 0;
+		if (fromIndex >= len)
+			return clen == 0 ? len : -1;
+		if (clen == 0)
+			return fromIndex;
+
+		char c0 = cs.charAt(0);
+		int limit = len - clen + off;
+		for (int i = off + fromIndex; i <= limit; i++) {
+			/* Look for first character */
+			while (value[i] != c0 && ++i <= limit)
+				/* Do nothing */;
+
+			/* Found first character, now look at the rest */
+			if (i <= limit) {
+				int j = i + 1;
+				int end = j + clen - 1;
+				for (int k = 1; j < end && value[j] == cs.charAt(k); j++, k++)
+					/* Do nothing */;
+
+				if (j == end)
+					/* Found whole sequence. */
+					return i - off;
+			}
+		}
+		return -1;
+	}
+
+	/**
 	 * Returns the index within this array of the last occurrence of the specified
 	 * character. For values of {@code c} in the range from 0 to 0Xffff (inclusive),
 	 * the index (in Unicode code units) returned is the largest value <i>k</i> such
@@ -438,6 +567,65 @@ public final class CharArray
 	}
 
 	/**
+	 * Returns the index within this array of the last occurrence of the specified
+	 * subsequence. If no such value exists, then {@code -1} is returned. The last
+	 * occurrence of the empty string "" is considered to occur at the index value
+	 * {@code this.length()}
+	 *
+	 * @param cs the subsequence to search for.
+	 * @return the index of the last occurrence of the specified subsequence, or
+	 *         {@code -1} if there is no such occurrence.
+	 */
+	public int lastIndexOf(CharSequence cs) {
+		return lastIndexOf(cs, 0);
+	}
+
+	/**
+	 * Returns the index within this char array of the last occurrence of the
+	 * specified subsequence, searching backward starting at the specified index. If
+	 * no such value exists, then {@code -1} is returned.
+	 *
+	 * @param cs        the subsequence to search for
+	 * @param fromIndex the index from which to start the search
+	 * @return the index of the last occurrence of the specified subsequence,
+	 *         starting at the specified index, or {@code -1} if there is no such
+	 *         occurrence.
+	 */
+	public int lastIndexOf(CharSequence cs, int fromIndex) {
+
+		int clen = cs.length();
+		if (clen > len || fromIndex < 0)
+			return -1;
+		int rightIndex = len - clen;
+		if (fromIndex > rightIndex)
+			fromIndex = rightIndex;
+		if (clen == 0)
+			return fromIndex;
+
+		int lastIndex = clen - 1;
+		char cl = cs.charAt(lastIndex);
+		int limit = off + clen - 1;
+		for (int i = limit + fromIndex; i >= limit; i--) {
+			/* Look for first character */
+			while (value[i] != cl && --i >= limit)
+				/* Do nothing */;
+
+			/* Found first character, now look at the rest */
+			if (i >= limit) {
+				int j = i - 1;
+				int start = j - clen + 1;
+				for (int k = lastIndex - 1; j > start && value[j] == cs.charAt(k); j--, k--)
+					/* Do nothing */;
+
+				if (j == start)
+					/* Found whole sequence. */
+					return start - off + 1;
+			}
+		}
+		return -1;
+	}
+
+	/**
 	 * Performs the given action for each element of the array until all elements
 	 * have been processed or the action throws an exception. Actions are performed
 	 * in the order of the array. Exceptions thrown by the action are relayed to the
@@ -475,7 +663,7 @@ public final class CharArray
 			public Character next() {
 				if (cur >= end)
 					throw new java.util.NoSuchElementException();
-				return value[cur++];
+				return Character.valueOf(value[cur++]);
 			}
 
 		};
@@ -489,15 +677,41 @@ public final class CharArray
 	 * @param newChar the new character
 	 * @return this
 	 */
-	public CharArray replace(int oldChar, int newChar) {
-		char oc = (char) oldChar;
-		char nc = (char) newChar;
-		if (oc == nc)
+	public CharArray replace(char oldChar, char newChar) {
+		if (oldChar == newChar)
 			return this;
 		int end = off + len;
 		for (int i = off; i < end; i++)
-			if (value[i] == oc)
-				value[i] = nc;
+			if (value[i] == oldChar)
+				value[i] = newChar;
+		return this;
+	}
+
+	/**
+	 * Replaces each subsequence of this array that matches the literal target
+	 * sequence with the specified literal replacement sequence. The replacement
+	 * proceeds from the beginning of the sequence to the end, for example,
+	 * replacing "aa" with "bb" in the sequence "aaa" will result in "bba" rather
+	 * than "abb".
+	 *
+	 * @param target      The sequence of char values to be replaced
+	 * @param replacement The replacement sequence of char values
+	 * @return this
+	 * @throws IllegalArgumentException if the lengths of the <code>target</code>
+	 *                                  and the <code>replacement</code> are
+	 *                                  different
+	 */
+	public CharArray replace(CharSequence target, CharSequence replacement) {
+		if (target.length() != replacement.length())
+			throw new IllegalArgumentException("Replace sequences length different");
+		int tlen = target.length();
+		if (tlen == 0 || tlen > len || target.equals(replacement))
+			return this;
+		int from = 0;
+		while ((from = indexOf(target, from)) > -1) {
+			putSequence(from, replacement);
+			from += tlen;
+		}
 		return this;
 	}
 
@@ -534,6 +748,34 @@ public final class CharArray
 	}
 
 	/**
+	 * Reverse the order of this char array where the origin end becomes start and
+	 * the origin start becomes end.
+	 * 
+	 * @return this
+	 */
+	public CharArray reverse() {
+		for (int i = off, j = off + len - 1; i < j; i++, j--) {
+			char tmp = value[i];
+			value[i] = value[j];
+			value[j] = tmp;
+		}
+		return this;
+	}
+
+	/**
+	 * Fill this char array in a specified char.
+	 * 
+	 * @param c specified character
+	 * @return this
+	 */
+	public CharArray fills(char c) {
+		int end = off + len;
+		for (int i = off; i < end; i++)
+			value[i] = c;
+		return this;
+	}
+
+	/**
 	 * Converts this character array to a new character array.
 	 *
 	 * @return a newly allocated character array whose length is the length of this
@@ -552,7 +794,7 @@ public final class CharArray
 	/**
 	 * Returns a <code>CharArray</code> that is a root of this array. The root array
 	 * has the public access like {@link #charAt(int)} and
-	 * {@link #setChar(int, int)} to visit on the whole {@link #value} from
+	 * {@link #setChar(int, char)} to visit on the whole {@link #value} from
 	 * <code>0</code> index to <code>value.length-1</code>.
 	 * <p>
 	 * Updates on characters of root-array has effect on this array while so does on
@@ -701,7 +943,7 @@ public final class CharArray
 
 	/**
 	 * Read some contents into this char array from the specified reader argument,
-	 * as if by calling the reader's write method using
+	 * as if by calling the reader's read method using
 	 * <code>reader.read(value, off, len)</code>, but fully read. If the characters
 	 * from the reader are not enough, an <code>EOFException</code> occurs.
 	 *
@@ -737,7 +979,7 @@ public final class CharArray
 	 * The comparison is based on the Unicode value of each character in the char
 	 * arrays. The character sequence represented by this {@code CharArray} object
 	 * is compared lexicographically to the character sequence represented by the
-	 * argument string. The result is a negative integer if this {@code CharArray}
+	 * argument array. The result is a negative integer if this {@code CharArray}
 	 * object lexicographically precedes the argument char array. The result is a
 	 * positive integer if this {@code CharArray} object lexicographically follows
 	 * the argument char array. The result is zero if the char arrays are equal;
@@ -746,22 +988,22 @@ public final class CharArray
 	 * <p>
 	 * This is the definition of lexicographic ordering. If two char arrays are
 	 * different, then either they have different characters at some index that is a
-	 * valid index for both strings, or their lengths are different, or both. If
-	 * they have different characters at one or more index positions, let <i>k</i>
-	 * be the smallest such index; then the string whose character at position
-	 * <i>k</i> has the smaller value, as determined by using the &lt; operator,
-	 * lexicographically precedes the other string. In this case, {@code compareTo}
+	 * valid index for both arrays, or their lengths are different, or both. If they
+	 * have different characters at one or more index positions, let <i>k</i> be the
+	 * smallest such index; then the array whose character at position <i>k</i> has
+	 * the smaller value, as determined by using the &lt; operator,
+	 * lexicographically precedes the other array. In this case, {@code compareTo}
 	 * returns the difference of the two character values at position {@code k} in
-	 * the two string -- that is, the value: <blockquote>
+	 * the two array -- that is, the value: <blockquote>
 	 * 
 	 * <pre>
-	 * this.charAt(k) - anotherString.charAt(k)
+	 * this.charAt(k) - other.charAt(k)
 	 * </pre>
 	 * 
 	 * </blockquote> If there is no index position at which they differ, then the
-	 * shorter string lexicographically precedes the longer string. In this case,
-	 * {@code compareTo} returns the difference of the lengths of the strings --
-	 * that is, the value: <blockquote>
+	 * shorter array lexicographically precedes the longer array. In this case,
+	 * {@code compareTo} returns the difference of the lengths of the arrays -- that
+	 * is, the value: <blockquote>
 	 * 
 	 * <pre>
 	 * this.length() - other.length()
@@ -770,7 +1012,7 @@ public final class CharArray
 	 * </blockquote>
 	 *
 	 * @param other the {@code CharArray} to be compared.
-	 * @return the value {@code 0} if the argument string is equal to this char
+	 * @return the value {@code 0} if the argument array is equal to this char
 	 *         array; a value less than {@code 0} if this char array is
 	 *         lexicographically less than the char array argument; and a value
 	 *         greater than {@code 0} if this char array is lexicographically
@@ -878,7 +1120,7 @@ public final class CharArray
 		/**
 		 * Serialize the char array.
 		 */
-		private static final long serialVersionUID = -6056865473256948403L;
+		private static final long serialVersionUID = CharArray.serialVersionUID + 16L;
 
 		/**
 		 * Char array to serialize
@@ -930,6 +1172,56 @@ public final class CharArray
 			return array;
 		}
 
+	}
+
+	/**
+	 * Copies an array from the specified source array, beginning at the specified
+	 * position, to the specified position of the destination array. A subsequence
+	 * of array components are copied from the source array referenced by
+	 * <code>src</code> to the destination array referenced by <code>dest</code>.
+	 * The number of components copied is equal to the <code>length</code> argument.
+	 * The components at positions <code>srcPos</code> through
+	 * <code>srcPos+length-1</code> in the source array are copied into positions
+	 * <code>destPos</code> through <code>destPos+length-1</code>, respectively, of
+	 * the destination array.
+	 * 
+	 * @param src     the source array
+	 * @param srcPos  starting position in the source array
+	 * @param dest    the destination array
+	 * @param destPos starting position in the destination data
+	 * @param length  the number of array elements to be copied
+	 * @throws IndexOutOfBoundsException if copying would cause access of data
+	 *                                   outside array bounds
+	 * @throws NullPointerException      if either <code>src</code> or
+	 *                                   <code>dest</code> is <code>null</code>.
+	 */
+	public static void copy(CharArray src, int srcPos, CharArray dest, int destPos, int length) {
+		if (srcPos < 0 || srcPos + length > src.len || srcPos + length < srcPos)
+			throw new IndexOutOfBoundsException();
+		if (destPos < 0 || destPos + length > dest.len || destPos + length < destPos)
+			throw new IndexOutOfBoundsException();
+		System.arraycopy(src.value, srcPos + src.off, dest.value, destPos + dest.off, length);
+	}
+
+	/**
+	 * Concatenates these arrays as one from first to the end one by one.
+	 * 
+	 * @param arrays arrays to concatenate
+	 * @return the concatenated array
+	 */
+	public static CharArray concat(CharArray... arrays) {
+		long len = 0;
+		for (int i = 0; i < arrays.length; i++)
+			len += arrays[i].len;
+		if (len != (int) len)
+			throw new OutOfMemoryError();
+		char[] target = new char[(int) len];
+		int cur = 0;
+		for (int i = 0; i < arrays.length; i++) {
+			System.arraycopy(arrays[i].value, arrays[i].off, target, cur, arrays[i].len);
+			cur += arrays[i].len;
+		}
+		return new CharArray(target);
 	}
 
 }
