@@ -40,7 +40,7 @@ final class PrimitiveTypeFloat implements PrimitiveType<Float, float[]> {
 
 	@Override
 	public int byteSize() {
-		return Float.SIZE >> 3;
+		return Float.BYTES;
 	}
 
 	@Override

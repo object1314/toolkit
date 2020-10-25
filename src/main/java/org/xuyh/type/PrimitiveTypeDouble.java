@@ -40,7 +40,7 @@ final class PrimitiveTypeDouble implements PrimitiveType<Double, double[]> {
 
 	@Override
 	public int byteSize() {
-		return Double.SIZE >> 3;
+		return Double.BYTES;
 	}
 
 	@Override

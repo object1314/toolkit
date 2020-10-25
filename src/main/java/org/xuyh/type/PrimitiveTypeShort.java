@@ -40,7 +40,7 @@ final class PrimitiveTypeShort implements PrimitiveType<Short, short[]> {
 
 	@Override
 	public int byteSize() {
-		return Short.SIZE >> 3;
+		return Short.BYTES;
 	}
 
 	@Override

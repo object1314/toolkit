@@ -40,7 +40,7 @@ final class PrimitiveTypeChar implements PrimitiveType<Character, char[]> {
 
 	@Override
 	public int byteSize() {
-		return Character.SIZE >> 3;
+		return Character.BYTES;
 	}
 
 	@Override

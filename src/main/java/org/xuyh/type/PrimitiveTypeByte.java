@@ -40,7 +40,7 @@ final class PrimitiveTypeByte implements PrimitiveType<Byte, byte[]> {
 
 	@Override
 	public int byteSize() {
-		return Byte.SIZE >> 3;
+		return Byte.BYTES;
 	}
 
 	@Override

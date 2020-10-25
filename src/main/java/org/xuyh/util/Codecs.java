@@ -5,6 +5,7 @@
 package org.xuyh.util;
 
 import java.util.Arrays;
+import java.util.function.IntFunction;
 
 /**
  * The toolkit to resolve with data on encoder as well as decoder in some cases.
@@ -90,13 +91,66 @@ public final class Codecs {
 
 		final char[] cs = new char[len << 1];
 		int cur = 0;
-
 		for (int i = offset; i < to; i++) {
 			cs[cur++] = Character.forDigit((data[i] >> 4) & 0Xf, 16);
 			cs[cur++] = Character.forDigit(data[i] & 0Xf, 16);
 		}
 
 		return new String(cs);
+	}
+
+	/**
+	 * Returns a hex string with hex chars range in 0-f from the input data in bytes
+	 * and the specified chars between bytes. The insertion accepts the last append
+	 * byte index count from <code>0</code> and generated the string to insert after
+	 * this byte.
+	 * 
+	 * @param data           the source data to encode
+	 * @param spaceInsertion the space string generator with index
+	 * @return encoded string in hex of the input data
+	 * @throws NullPointerException if the input data or spaceInsertion is
+	 *                              <code>null</code>
+	 * @see #hex(byte[], int, int)
+	 */
+	public static String hex(byte[] data, IntFunction<String> spaceInsertion) {
+		return hex(data, 0, data.length, spaceInsertion);
+	}
+
+	/**
+	 * Returns a hex string with hex chars range in 0-f from the input data in bytes
+	 * and the specified chars between bytes. The insertion accepts the last append
+	 * byte index count from <code>0</code> and generated the string to insert after
+	 * this byte.
+	 * 
+	 * @param data           the source data to encode
+	 * @param offset         the start position of the data to encode
+	 * @param len            the length of the data to encode
+	 * @param spaceInsertion the space string generator with index
+	 * @return encoded string in hex of the input data
+	 * @throws NullPointerException      if the input data is <code>null</code>
+	 * @throws IndexOutOfBoundsException if the data range is illegal
+	 */
+	public static String hex(byte[] data, int offset, int len, IntFunction<String> spaceInsertion) {
+
+		if (null == data || null == spaceInsertion)
+			throw new NullPointerException();
+
+		final int to = offset + len;
+		if (offset < 0 || to > data.length || offset > to)
+			throw new IndexOutOfBoundsException("offset=" + offset + ",len=" + len);
+		if (len > (Integer.MAX_VALUE >> 1))
+			throw new OutOfMemoryError();
+
+		StringBuilder sb = new StringBuilder(len << 1);
+		for (int i = offset; i < to; i++) {
+			sb.append(Character.forDigit((data[i] >> 4) & 0Xf, 16));
+			sb.append(Character.forDigit(data[i] & 0Xf, 16));
+			String extra = spaceInsertion.apply(i - offset);
+			if (i < to - 1 && null != extra && !extra.isEmpty())
+				sb.append(extra);
+		}
+
+		return sb.toString();
 	}
 
 	/**
@@ -218,17 +272,17 @@ public final class Codecs {
 					'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', // 40-47(8)
 					'o', 'p', 'q', 'r', 's', 't', 'u', 'v', // 50-57(8)
 					'w', 'x', 'y', 'z', '0', '1', '2', '3', // 60-67(8)
-					'4', '5', '6', '7', '8', '9', '+', '/'  // 70-77(8)
+					'4', '5', '6', '7', '8', '9', '+', '/' // 70-77(8)
 			};
 			DE_BS = new byte[] { // Begin initialize
 					-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, // 00-0f
 					-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, // 10-1f
 					-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 62, -1, -1, -1, 63, // 20-2f
 					52, 53, 54, 55, 56, 57, 58, 59, 60, 61, -1, -1, -1, -1, -1, -1, // 30-3f
-					-1,  0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 14, // 40-4f
+					-1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, // 40-4f
 					15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, -1, -1, -1, -1, -1, // 50-5f
 					-1, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, // 60-6f
-					41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, -1, -1, -1, -1, -1  // 70-7f
+					41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, -1, -1, -1, -1, -1 // 70-7f
 			};
 		}
 
@@ -415,27 +469,27 @@ public final class Codecs {
 					0Xfffa3942, 0X8771f681, 0X6d9d6122, 0Xfde5380c, 0Xa4beea44, 0X4bdecfa9, 0Xf6bb4b60, 0Xbebfbc70, // R4
 					0X289b7ec6, 0Xeaa127fa, 0Xd4ef3085, 0X04881d05, 0Xd9d4d039, 0Xe6db99e5, 0X1fa27cf8, 0Xc4ac5665, // R5
 					0Xf4292244, 0X432aff97, 0Xab9423a7, 0Xfc93a039, 0X655b59c3, 0X8f0ccc92, 0Xffeff47d, 0X85845dd1, // R6
-					0X6fa87e4f, 0Xfe2ce6e0, 0Xa3014314, 0X4e0811a1, 0Xf7537e82, 0Xbd3af235, 0X2ad7d2bb, 0Xeb86d391  // R7
+					0X6fa87e4f, 0Xfe2ce6e0, 0Xa3014314, 0X4e0811a1, 0Xf7537e82, 0Xbd3af235, 0X2ad7d2bb, 0Xeb86d391 // R7
 			};
 			S = new int[] { // Begin initialize
 					7, 12, 17, 22, 7, 12, 17, 22, // R0
 					7, 12, 17, 22, 7, 12, 17, 22, // R1
-					5,  9, 14, 20, 5,  9, 14, 20, // R2
-					5,  9, 14, 20, 5,  9, 14, 20, // R3
+					5, 9, 14, 20, 5, 9, 14, 20, // R2
+					5, 9, 14, 20, 5, 9, 14, 20, // R3
 					4, 11, 16, 23, 4, 11, 16, 23, // R4
 					4, 11, 16, 23, 4, 11, 16, 23, // R5
 					6, 10, 15, 21, 6, 10, 15, 21, // R6
-					6, 10, 15, 21, 6, 10, 15, 21  // R7
+					6, 10, 15, 21, 6, 10, 15, 21 // R7
 			};
 			M = new int[] { // Begin initialize
-					 0,  1,  2,  3,  4,  5,  6,  7, // R0
-					 8,  9, 10, 11, 12, 13, 14, 15, // R1
-					 1,  6, 11,  0,  5, 10, 15,  4, // R2
-					 9, 14,  3,  8, 13,  2,  7, 12, // R3
-					 5,  8, 11, 14,  1,  4,  7, 10, // R4
-					13,  0,  3,  6,  9, 12, 15,  2, // R5
-					 0,  7, 14,  5, 12,  3, 10,  1, // R6
-					 8, 15,  6, 13,  4, 11,  2,  9  // R7
+					0, 1, 2, 3, 4, 5, 6, 7, // R0
+					8, 9, 10, 11, 12, 13, 14, 15, // R1
+					1, 6, 11, 0, 5, 10, 15, 4, // R2
+					9, 14, 3, 8, 13, 2, 7, 12, // R3
+					5, 8, 11, 14, 1, 4, 7, 10, // R4
+					13, 0, 3, 6, 9, 12, 15, 2, // R5
+					0, 7, 14, 5, 12, 3, 10, 1, // R6
+					8, 15, 6, 13, 4, 11, 2, 9 // R7
 			};
 		}
 

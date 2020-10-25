@@ -40,7 +40,7 @@ final class PrimitiveTypeLong implements PrimitiveType<Long, long[]> {
 
 	@Override
 	public int byteSize() {
-		return Long.SIZE >> 3;
+		return Long.BYTES;
 	}
 
 	@Override

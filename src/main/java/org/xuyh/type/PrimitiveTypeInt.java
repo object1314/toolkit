@@ -40,7 +40,7 @@ final class PrimitiveTypeInt implements PrimitiveType<Integer, int[]> {
 
 	@Override
 	public int byteSize() {
-		return Integer.SIZE >> 3;
+		return Integer.BYTES;
 	}
 
 	@Override
