@@ -16,7 +16,7 @@ import java.util.function.IntPredicate;
  * @author XuYanhang
  * @since 2020-10-06
  */
-public interface IntList extends Iterable<Integer>, PrimArray<int[], Integer> {
+public interface IntList extends Iterable<Integer> {
 
 	/**
 	 * Returns the number of elements in this list.
