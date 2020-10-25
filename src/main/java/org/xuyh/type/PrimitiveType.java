@@ -23,28 +23,28 @@ public interface PrimitiveType<T, A>
 		extends java.lang.reflect.Type, java.io.Serializable, Comparable<PrimitiveType<?, ?>> {
 
 	/** @see Byte */
-	public static final PrimitiveType<Byte, byte[]> BYTE = new ByteType();
+	public static final PrimitiveType<Byte, byte[]> BYTE = new PrimitiveTypeByte();
 
 	/** @see Short */
-	public static final PrimitiveType<Short, short[]> SHORT = new ShortType();
+	public static final PrimitiveType<Short, short[]> SHORT = new PrimitiveTypeShort();
 
 	/** @see Integer */
-	public static final PrimitiveType<Integer, int[]> INT = new IntType();
+	public static final PrimitiveType<Integer, int[]> INT = new PrimitiveTypeInt();
 
 	/** @see Long */
-	public static final PrimitiveType<Long, long[]> LONG = new LongType();
+	public static final PrimitiveType<Long, long[]> LONG = new PrimitiveTypeLong();
 
 	/** @see Float */
-	public static final PrimitiveType<Float, float[]> FLOAT = new FloatType();
+	public static final PrimitiveType<Float, float[]> FLOAT = new PrimitiveTypeFloat();
 
 	/** @see Double */
-	public static final PrimitiveType<Double, double[]> DOUBLE = new DoubleType();
+	public static final PrimitiveType<Double, double[]> DOUBLE = new PrimitiveTypeDouble();
 
 	/** @see Character */
-	public static final PrimitiveType<Character, char[]> CHAR = new CharType();
+	public static final PrimitiveType<Character, char[]> CHAR = new PrimitiveTypeChar();
 
 	/** @see Boolean */
-	public static final PrimitiveType<Boolean, boolean[]> BOOLEAN = new BooleanType();
+	public static final PrimitiveType<Boolean, boolean[]> BOOLEAN = new PrimitiveTypeBoolean();
 
 	/**
 	 * Returns all types.
