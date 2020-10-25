@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2020 XuYanhang
+ * 
+ */
 package org.xuyh.io;
 
 import java.io.IOException;
