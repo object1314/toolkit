@@ -4,13 +4,8 @@
  */
 package org.xuyh.controller;
 
-import java.net.Inet4Address;
-import java.net.Inet6Address;
-import java.net.InterfaceAddress;
-import java.net.NetworkInterface;
 import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.Iterator;
+import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -20,6 +15,7 @@ import org.springframework.core.env.PropertyResolver;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
+import org.xuyh.net.LocalInetAddress;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -73,28 +69,25 @@ public class ApplicationController extends HttpRestControllerHandler implements 
 			method = RequestMethod.GET, // METHOD
 			produces = { "application/json" })
 	@ApiOperation(tags = "List inet addresses", value = "List inet addresses")
-	public AppInetAddress[] getAppOsAllInetAddrs(HttpServletRequest request) throws Throwable {
-		ArrayList<AppInetAddress> inetAddrs = new ArrayList<>();
-		Enumeration<NetworkInterface> networkInterfaces = NetworkInterface.getNetworkInterfaces();
-		while (networkInterfaces.hasMoreElements()) {
-			NetworkInterface networkInterface = networkInterfaces.nextElement();
-			Iterator<InterfaceAddress> interfaceAddresses = networkInterface.getInterfaceAddresses().iterator();
-			while (interfaceAddresses.hasNext()) {
-				InterfaceAddress interfaceAddress = interfaceAddresses.next();
-				if (null == interfaceAddress.getAddress())
-					continue;
-				inetAddrs.add(new AppInetAddress(networkInterface, interfaceAddress));
-			}
-		}
-		return inetAddrs.toArray(new AppInetAddress[inetAddrs.size()]);
+	public LocalInetAddress[] getAppOsAllInetAddrs(HttpServletRequest request) throws Throwable {
+		List<LocalInetAddress> addresses = LocalInetAddress.listAddresses();
+		return addresses.toArray(new LocalInetAddress[addresses.size()]);
 	}
 
-	@RequestMapping(value = "/osenvir/memory", // PATH
+	@RequestMapping(value = "/jvm/memory", // PATH
 			method = RequestMethod.GET, // METHOD
 			produces = { "application/json" })
-	@ApiOperation(tags = "List OS memory status", value = "List OS memory status")
-	public AppEnvirMemory getAppOsEnvirMemory(HttpServletRequest request) throws Throwable {
+	@ApiOperation(tags = "List JVM memory status", value = "List JVM memory status")
+	public AppEnvirMemory getAppJVMMemory(HttpServletRequest request) throws Throwable {
 		return new AppEnvirMemory();
+	}
+
+	@RequestMapping(value = "/jvm/gc", // PATH
+			method = RequestMethod.POST, // METHOD
+			produces = {})
+	@ApiOperation(tags = "Do JVM Garbage Collect", value = "Do JVM Garbage Collect")
+	public void garbageCollectAppJVMMemory(HttpServletRequest request) throws Throwable {
+		Runtime.getRuntime().gc();
 	}
 
 	/**
@@ -156,59 +149,6 @@ public class ApplicationController extends HttpRestControllerHandler implements 
 			this.servletPath = servletPath;
 			this.targetUri = targetUri;
 		}
-	}
-
-	/**
-	 * IP address
-	 */
-	public static class AppInetAddress {
-
-		public String ip;
-		public int ipVersion;
-		public String mac;
-		public int prefix;
-		public String mask;
-		public String broadcast;
-		public String name;
-
-		public AppInetAddress(NetworkInterface netWorkInterface, InterfaceAddress interfaceAddress) throws Exception {
-			super();
-			// Load IP and IPVersion
-			this.ip = interfaceAddress.getAddress().getHostAddress();
-			if (interfaceAddress.getAddress() instanceof Inet4Address)
-				ipVersion = 4;
-			else if (interfaceAddress.getAddress() instanceof Inet6Address)
-				ipVersion = 6;
-			// Load mac
-			byte[] bmac = netWorkInterface.getHardwareAddress();
-			if (null != bmac) {
-				StringBuilder macBuilder = new StringBuilder(bmac.length * 3 - 1);
-				for (int i = 0; i < bmac.length; i++) {
-					if (i != 0)
-						macBuilder.append(':');
-					macBuilder.append(Character.forDigit((bmac[i] >> 4) & 0Xf, 16));
-					macBuilder.append(Character.forDigit(bmac[i] & 0Xf, 16));
-				}
-				this.mac = macBuilder.toString();
-			}
-			// Load prefix and mask
-			this.prefix = interfaceAddress.getNetworkPrefixLength();
-			if (4 == ipVersion) {
-				int imask = 0Xffffffff << (32 - this.prefix);
-				StringBuilder maskBuilder = new StringBuilder();
-				maskBuilder.append((imask >> 24) & 0Xff).append('.');
-				maskBuilder.append((imask >> 16) & 0Xff).append('.');
-				maskBuilder.append((imask >> 8) & 0Xff).append('.');
-				maskBuilder.append(imask & 0Xff);
-				this.mask = maskBuilder.toString();
-			}
-			// Load broadcast
-			if (null != interfaceAddress.getBroadcast())
-				this.broadcast = interfaceAddress.getBroadcast().getHostAddress();
-			// Load name
-			this.name = netWorkInterface.getName();
-		}
-
 	}
 
 	/**
