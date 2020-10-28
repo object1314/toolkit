@@ -20,7 +20,7 @@ import javax.script.ScriptException;
  * @since 2020-10-27
  *
  */
-public class NoshornObject {
+public final class NoshornObject {
 
 	/**
 	 * Global executor
@@ -284,7 +284,7 @@ public class NoshornObject {
 	 * @return the enumeration from the specified property on name, or
 	 *         <code>null</code> if not exist or failed parse
 	 */
-	public <T> T getEnum(String name, Class<T> cla) {
+	public <T extends Enum<T>> T getEnum(String name, Class<T> cla) {
 		Object pro = thiz.get(name);
 		if (null == pro)
 			return null;
@@ -355,11 +355,17 @@ public class NoshornObject {
 	 * @param method the method name in this object
 	 * @param args   the arguments
 	 * @return execute result
-	 * @throws NoSuchMethodException of this method doesn't exist
-	 * @throws ScriptException       on error happen in execute this method
+	 * @throws UnsupportedOperationException of this method doesn't exist
+	 * @throws IllegalStateException         on error happen in execute this method
 	 */
-	public <T> T invoke(String method, Object... args) throws NoSuchMethodException, ScriptException {
-		return executor.invokeMethod(thiz, method, args);
+	public <T> T invoke(String method, Object... args) {
+		try {
+			return executor.invokeMethod(thiz, method, args);
+		} catch (NoSuchMethodException e) {
+			throw new UnsupportedOperationException(e);
+		} catch (ScriptException e) {
+			throw new IllegalStateException(e);
+		}
 	}
 
 	/**
@@ -369,12 +375,17 @@ public class NoshornObject {
 	 * @param method the method name in this object
 	 * @param args   the arguments
 	 * @return a NoshornObject on execute result
-	 * @throws NoSuchMethodException of this method doesn't exist
-	 * @throws ScriptException       on error happen in execute this method
+	 * @throws UnsupportedOperationException of this method doesn't exist
+	 * @throws IllegalStateException         on error happen in execute this method
 	 */
-	public NoshornObject invokeAsNoshornObject(String method, Object... args)
-			throws NoSuchMethodException, ScriptException {
-		return new NoshornObject(executor, executor.invokeMethod(thiz, method, args));
+	public NoshornObject invokeAsNoshornObject(String method, Object... args) {
+		try {
+			return new NoshornObject(executor, executor.invokeMethod(thiz, method, args));
+		} catch (NoSuchMethodException e) {
+			throw new UnsupportedOperationException(e);
+		} catch (ScriptException e) {
+			throw new IllegalStateException(e);
+		}
 	}
 
 	/**
@@ -413,7 +424,7 @@ public class NoshornObject {
 	 */
 	@Override
 	public String toString() {
-		return String.valueOf(thiz);
+		return thiz.toString();
 	}
 
 }
