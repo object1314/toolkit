@@ -4,13 +4,9 @@
  */
 package org.xuyh.time;
 
-import java.util.TimeZone;
-
 import static org.xuyh.time.Time.MINUTES_PER_HOUR;
 import static org.xuyh.time.Time.SECONDS_PER_HOUR;
 import static org.xuyh.time.Time.SECONDS_PER_MINUTE;
-import static org.xuyh.time.Time.MILLIS_PER_SECOND;
-
 /**
  * A time-zone offset from Greenwich/UTC, such as {@code +0800}.
  * <p>
@@ -32,11 +28,6 @@ public final class ZoneOffset implements java.io.Serializable, Comparable<ZoneOf
 	 * The UTC time-zone offset.
 	 */
 	public static final ZoneOffset UTC;
-
-	/**
-	 * The local time-zone offset.
-	 */
-	public static final ZoneOffset LOCAL;
 
 	/**
 	 * The maximum time-zone offset
@@ -62,15 +53,6 @@ public final class ZoneOffset implements java.io.Serializable, Comparable<ZoneOf
 		UTC = new ZoneOffset(0);
 		MAX = new ZoneOffset(MAX_SECONDS);
 		MIN = new ZoneOffset(MIN_SECONDS);
-		int localSeconds = TimeZone.getDefault().getRawOffset() / MILLIS_PER_SECOND;
-		if (0 == localSeconds)
-			LOCAL = UTC;
-		else if (MAX_SECONDS <= localSeconds)
-			LOCAL = MAX;
-		else if (MIN_SECONDS >= localSeconds)
-			LOCAL = MIN;
-		else
-			LOCAL = new ZoneOffset(localSeconds);
 	}
 
 	/**
@@ -130,8 +112,6 @@ public final class ZoneOffset implements java.io.Serializable, Comparable<ZoneOf
 	public static ZoneOffset fromTotalSeconds(int totalSeconds) {
 		if (totalSeconds == 0)
 			return UTC;
-		if (totalSeconds == LOCAL.totalSeconds)
-			return LOCAL;
 		if (totalSeconds < MIN_SECONDS || totalSeconds > MAX_SECONDS)
 			throw new IllegalArgumentException("time-zone offset out of range");
 		return new ZoneOffset(totalSeconds);
