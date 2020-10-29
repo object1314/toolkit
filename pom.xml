@@ -187,5 +187,11 @@
 			<artifactId>jedis</artifactId>
 		</dependency>
 
+		<!-- The dependency for cron timer task schedule -->
+		<dependency>
+			<groupId>org.quartz-scheduler</groupId>
+			<artifactId>quartz</artifactId>
+		</dependency>
+
 	</dependencies>
 </project>
