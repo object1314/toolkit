@@ -139,6 +139,8 @@ public final class InetURL implements Cloneable, java.io.Serializable {
 			to = url.indexOf('?');
 		if (to < 0)
 			to = url.indexOf('#');
+		if (to < 0)
+			to = url.length();
 		parseURLHost(url.substring(from, to));
 		// Check path
 		parseURLPath(url.substring(to));
