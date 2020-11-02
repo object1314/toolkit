@@ -15,11 +15,6 @@ package org.xuyh.concurrent;
 public interface Cancellable {
 
 	/**
-	 * An instance of empty to do nothing
-	 */
-	public static Cancellable EMPTY = ()->{};
-
-	/**
 	 * Cancel the action or free a resource.
 	 */
 	public void cancel();

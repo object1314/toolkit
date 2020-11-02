@@ -143,7 +143,8 @@ public final class CRONExecutor {
 				}
 			} catch (Exception ignore) {
 			}
-			return Cancellable.EMPTY;
+			return () -> {
+			};
 		} finally {
 			lock.unlock();
 		}

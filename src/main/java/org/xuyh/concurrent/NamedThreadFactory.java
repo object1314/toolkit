@@ -20,7 +20,7 @@ public class NamedThreadFactory implements ThreadFactory {
 	/**
 	 * Thread name prefix in a fix string
 	 */
-	private final String namePrefix;
+	private final String threadNamePrefix;
 
 	/**
 	 * Thread name suffix in an ordered number
@@ -35,13 +35,13 @@ public class NamedThreadFactory implements ThreadFactory {
 	/**
 	 * Create factory with the name prefix.
 	 * 
-	 * @param namePrefix the created threads' name prefix
+	 * @param threadNamePrefix the created threads' name prefix
 	 */
-	public NamedThreadFactory(String namePrefix) {
+	public NamedThreadFactory(String threadNamePrefix) {
 		super();
-		if (null == namePrefix)
-			throw new NullPointerException("namePrefix");
-		this.namePrefix = namePrefix;
+		if (null == threadNamePrefix)
+			throw new NullPointerException("threadNamePrefix");
+		this.threadNamePrefix = threadNamePrefix;
 		this.threadNo = new AtomicInteger(1);
 		SecurityManager s = System.getSecurityManager();
 		this.threadGroup = (s != null) ? s.getThreadGroup() : Thread.currentThread().getThreadGroup();
@@ -52,14 +52,14 @@ public class NamedThreadFactory implements ThreadFactory {
 	/**
 	 * Create factory with the name prefix and the thread group.
 	 * 
-	 * @param namePrefix  the created threads' name prefix
-	 * @param threadGroup the belonged thread factory
+	 * @param threadNamePrefix the created threads' name prefix
+	 * @param threadGroup      the belonged thread factory
 	 */
-	public NamedThreadFactory(String namePrefix, ThreadGroup threadGroup) {
+	public NamedThreadFactory(String threadNamePrefix, ThreadGroup threadGroup) {
 		super();
-		if (null == namePrefix)
-			throw new NullPointerException("namePrefix");
-		this.namePrefix = namePrefix;
+		if (null == threadNamePrefix)
+			throw new NullPointerException("threadNamePrefix");
+		this.threadNamePrefix = threadNamePrefix;
 		this.threadNo = new AtomicInteger(1);
 		if (null == threadGroup)
 			throw new NullPointerException("threadGroup");
@@ -71,7 +71,7 @@ public class NamedThreadFactory implements ThreadFactory {
 	 */
 	@Override
 	public Thread newThread(Runnable r) {
-		Thread t = new Thread(threadGroup, r, namePrefix + "-" + threadNo.getAndIncrement(), 0);
+		Thread t = new Thread(threadGroup, r, threadNamePrefix + "-" + threadNo.getAndIncrement(), 0);
 		if (t.isDaemon())
 			t.setDaemon(false);
 		if (t.getPriority() != Thread.NORM_PRIORITY)
