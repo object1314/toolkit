@@ -134,7 +134,7 @@ public final class InetURL implements Cloneable, java.io.Serializable {
 		this.scheme = decodeURLPart(url.substring(from, to), charset);
 		from = to + 3;
 		// Check user info and host info
-		to = url.indexOf('/');
+		to = url.indexOf('/', from);
 		if (to < 0)
 			to = url.indexOf('?');
 		if (to < 0)
