@@ -744,6 +744,12 @@ public class IntArrayList implements IntList, java.util.RandomAccess, Cloneable,
 		IntList other = (IntList) o;
 		if (this.size != other.size())
 			return false;
+		IntIterator iterator = other.intIterator(0);
+		for (int i = 0; i < size; ++i) {
+			if (data[i] != iterator.next()) {
+				return false;
+			}
+		}
 		return true;
 	}
 
