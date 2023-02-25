@@ -1,8 +1,9 @@
-package org.xuyh.util;
 /*
  * Copyright (c) 2022 XuYanhang
- * 
+ *
  */
+package org.xuyh.util;
+
 import java.awt.image.BufferedImage;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
