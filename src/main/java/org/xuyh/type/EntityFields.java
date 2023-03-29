@@ -230,6 +230,13 @@ public final class EntityFields {
     private static final String IS_PREFIX = "is";
     private static final String SET_PREFIX = "set";
 
+    /**
+     * Creates a new builder on {@link EntityField}.
+     *
+     * @param <E> Entity type
+     * @param <F> Field type
+     * @return builder on {@link EntityField}
+     */
     public static <E, F> Builder<E, F> builder() {
         return new Builder<>();
     }
@@ -244,7 +251,7 @@ public final class EntityFields {
      * @return an instance of {@link EntityField}
      */
     public static <E, F> EntityField<E, F> of(Class<?> entityType, String name) {
-        return new Builder<E, F>().in(entityType).name(name).build();
+        return EntityFields.<E, F>builder().in(entityType).name(name).build();
     }
 
     /**
@@ -256,7 +263,7 @@ public final class EntityFields {
      * @return an instance of {@link EntityField}
      */
     public static <E, F> EntityField<E, F> of(Field field) {
-        return new Builder<E, F>().field(field).build();
+        return EntityFields.<E, F>builder().field(field).build();
     }
 
     /**
@@ -269,7 +276,7 @@ public final class EntityFields {
      * @return an instance of {@link EntityField}
      */
     public static <E, F> EntityField<E, F> of(Class<?> entityType, Field field) {
-        return new Builder<E, F>().in(entityType).field(field).build();
+        return EntityFields.<E, F>builder().in(entityType).field(field).build();
     }
 
     /**
@@ -281,7 +288,7 @@ public final class EntityFields {
      * @return an instance of {@link EntityField}
      */
     public static <E, F> EntityField<E, F> of(SerialFunction<E, F> getter) {
-        return new Builder<E, F>().getter(getter).build();
+        return EntityFields.<E, F>builder().getter(getter).build();
     }
 
     /**
@@ -294,7 +301,7 @@ public final class EntityFields {
      * @return an instance of {@link EntityField}
      */
     public static <E, F> EntityField<E, F> of(Class<?> entityType, SerialFunction<E, F> getter) {
-        return new Builder<E, F>().in(entityType).getter(getter).build();
+        return EntityFields.<E, F>builder().in(entityType).getter(getter).build();
     }
 
     private static String parseMethodName(String methodName, String prefix) {
