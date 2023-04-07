@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 2020 XuYanhang
- * 
+ * Copyright (c) 2020-2023 XuYanhang
  */
+
 package org.xuyh.container;
 
 import java.util.function.Supplier;
@@ -18,7 +18,6 @@ import java.util.function.Supplier;
  *
  */
 public class ObjectPoolFactory {
-
 	/**
 	 * Build an {@link ObjectPool} in the way of {@link SimpleObjectPool}.
 	 * 
@@ -30,7 +29,7 @@ public class ObjectPoolFactory {
 	 * @throws NullPointerException     when the input objectFactory value is
 	 *                                  <code>null</code>
 	 * @throws IllegalArgumentException when the input capacity is a negative value
-	 * @return the builded {@link ObjectPool}
+	 * @return the built {@link ObjectPool}
 	 */
 	public static <T> ObjectPool<T> buildSimplePool(Supplier<T> objectFactory, int capacity) {
 		return new SimpleObjectPool<>(objectFactory, capacity);
@@ -42,5 +41,4 @@ public class ObjectPoolFactory {
 	private ObjectPoolFactory() {
 		super();
 	}
-
 }

@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 2020 XuYanhang
- * 
+ * Copyright (c) 2020-2023 XuYanhang
  */
+
 package org.xuyh.concurrent;
 
 /**
@@ -13,10 +13,8 @@ package org.xuyh.concurrent;
  */
 @FunctionalInterface
 public interface Cancellable {
-
-	/**
-	 * Cancel the action or free a resource.
-	 */
-	public void cancel();
-
+    /**
+     * Cancel the action or free a resource.
+     */
+    void cancel();
 }

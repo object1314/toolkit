@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 2020 XuYanhang
- * 
+ * Copyright (c) 2020-2023 XuYanhang
  */
+
 package org.xuyh.container;
 
 /**
@@ -10,15 +10,15 @@ package org.xuyh.container;
  * <p>
  * Besides, it mostly is safe in a concurrent environment. For a manage
  * {@link Thread} on the {@link ObjectPool}, the codes are mostly like this:
- * 
+ *
  * <pre>
  *     try(ObjectPool pool = <i>initial_a_pool</i>;) {
  *         <i>// Other codes those might be in a concurrent environment</i>
  *     }
  * </pre>
- * 
+ * <p>
  * For any use block, the codes are mostly like this:
- * 
+ *
  * <pre>
  *     boolean isGood = true;
  *     Object obj = pool.borrowObject();
@@ -32,63 +32,60 @@ package org.xuyh.container;
  *         }
  *     }
  * </pre>
- * 
- * @author XuYanhang
- * @since 2020-08-15
  *
  * @param <T> Generic type
+ * @author XuYanhang
+ * @since 2020-08-15
  */
 public interface ObjectPool<T> extends AutoCloseable {
+    /**
+     * Borrow an object from the pool. An object can be used out of the pool only
+     * when it is borrowed.
+     *
+     * @return the borrowed object in the pool
+     */
+    T borrowObject();
 
-	/**
-	 * Borrow an object from the pool. An object can be used out of the pool only
-	 * when it is borrowed.
-	 * 
-	 * @return the borrowed object in the pool
-	 */
-	public T borrowObject();
+    /**
+     * Return an object into the pool. After the return action, the object is
+     * expected to be unused out of the pool.
+     *
+     * @param obj the object to return into the pool
+     */
+    void returnObject(T obj);
 
-	/**
-	 * Return an object into the pool. After the return action, the object is
-	 * expected to be unused out of the pool.
-	 * 
-	 * @param obj the object to return into the pool
-	 */
-	public void returnObject(T obj);
+    /**
+     * Invalidate an object of the pool.
+     *
+     * @param obj the object to invalidate
+     */
+    void invalidateObject(T obj);
 
-	/**
-	 * Invalidate an object of the pool.
-	 * 
-	 * @param obj the object to invalidate
-	 */
-	public void invalidateObject(T obj);
+    /**
+     * Returns capacity of the pool.
+     *
+     * @return the pool capacity
+     */
+    int readPoolCapacity();
 
-	/**
-	 * Returns capacity of the pool.
-	 * 
-	 * @return the pool capacity
-	 */
-	public int readPoolCapacity();
+    /**
+     * Returns the amount of the idle objects in the pool.
+     *
+     * @return the amount of the idle objects in the pool
+     */
+    int readIdleObjectAmount();
 
-	/**
-	 * Returns the amount of the idle objects in the pool.
-	 * 
-	 * @return the amount of the idle objects in the pool
-	 */
-	public int readIdleObjectAmount();
+    /**
+     * Clear all pooled objects in the pool.
+     */
+    void clear();
 
-	/**
-	 * Clear all pooled objects in the pool.
-	 */
-	public void clear();
-
-	/**
-	 * Close this object pool so that all of the resources are released.
-	 * 
-	 * @see AutoCloseable#close()
-	 * @throws Exception if this pool failed close
-	 */
-	@Override
-	public void close() throws Exception;
-
+    /**
+     * Close this object pool so that all of the resources are released.
+     *
+     * @throws Exception if this pool failed close
+     * @see AutoCloseable#close()
+     */
+    @Override
+    void close() throws Exception;
 }

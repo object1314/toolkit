@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 2020 XuYanhang
- * 
+ * Copyright (c) 2020-2023 XuYanhang
  */
+
 package org.xuyh.config;
 
 import com.corundumstudio.socketio.Configuration;
@@ -16,76 +16,72 @@ import org.springframework.context.annotation.Scope;
 
 /**
  * Configuration on EHCache. Use SocketIOServer in an injected way.
- * 
- * @author XuYanhang
  *
+ * @author XuYanhang
+ * @since 2020-12-31
  */
 @org.springframework.context.annotation.Configuration
 public class SocketIOConfig {
+    @Value("${websocket.server.ip}")
+    private String ip;
 
-	@Value("${websocket.server.ip}")
-	private String ip;
+    @Value("${websocket.server.port}")
+    private int port;
 
-	@Value("${websocket.server.port}")
-	private int port;
+    /**
+     * New instance from Spring Boot
+     */
+    public SocketIOConfig() {
+        super();
+    }
 
-	/**
-	 * 
-	 */
-	public SocketIOConfig() {
-		super();
-	}
+    /**
+     * Create SocketIOServer configuration into spring context. Use autowired inject
+     * operation of type SocketIOServer.
+     *
+     * @return a SocketIOServer
+     */
+    @Bean
+    @Scope("singleton")
+    public SocketIOServer socketIOServer() {
+        Configuration config = new Configuration();
+        config.setHostname(ip);
+        config.setPort(port);
+        return new SocketIOServer(config);
+    }
 
-	/**
-	 * Create SocketIOServer configuration into spring context. Use autowired inject
-	 * operation of type SocketIOServer.
-	 * 
-	 * @return a SocketIOServer
-	 */
-	@Bean
-	@Scope("singleton")
-	public SocketIOServer socketIOServer() {
-		Configuration config = new Configuration();
-		config.setHostname(ip);
-		config.setPort(port);
-		return new SocketIOServer(config);
-	}
+    @Bean
+    @Scope("singleton")
+    public SpringAnnotationScanner socketIOServerScanner(SocketIOServer socketIOServer) {
+        return new SpringAnnotationScanner(socketIOServer);
+    }
 
-	@Bean
-	@Scope("singleton")
-	public SpringAnnotationScanner socketIOServerScanner(SocketIOServer socketIOServer) {
-		return new SpringAnnotationScanner(socketIOServer);
-	}
+    @ConditionalOnProperty("websocket.server.enable")
+    @Bean
+    @Scope("singleton")
+    public SocketIOServerCommandLineRunner socketIOServerRunner(SocketIOServer socketIOServer) {
+        return new SocketIOServerCommandLineRunner(socketIOServer);
+    }
 
-	@ConditionalOnProperty("websocket.server.enable")
-	@Bean
-	@Scope("singleton")
-	public SocketIOServerCommandLineRunner socketIOServerRunner(SocketIOServer socketIOServer) {
-		return new SocketIOServerCommandLineRunner(socketIOServer);
-	}
+    static class SocketIOServerCommandLineRunner implements CommandLineRunner {
+        SocketIOServer socketIOServer;
 
-	static class SocketIOServerCommandLineRunner implements CommandLineRunner {
+        /**
+         * @param server create server param
+         */
+        public SocketIOServerCommandLineRunner(SocketIOServer server) {
+            super();
+            this.socketIOServer = server;
+        }
 
-		SocketIOServer socketIOServer;
+        @Override
+        public void run(String... args) throws Exception {
+            socketIOServer.start();
+        }
 
-		/**
-		 * @param server
-		 */
-		public SocketIOServerCommandLineRunner(SocketIOServer server) {
-			super();
-			this.socketIOServer = server;
-		}
-
-		@Override
-		public void run(String... args) throws Exception {
-			socketIOServer.start();
-		}
-
-		@javax.annotation.PreDestroy
-		public void shutdown() {
-			socketIOServer.stop();
-		}
-
-	}
-
+        @javax.annotation.PreDestroy
+        public void shutdown() {
+            socketIOServer.stop();
+        }
+    }
 }

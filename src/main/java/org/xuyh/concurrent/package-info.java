@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 2020 XuYanhang
- * 
+ * Copyright (c) 2020-2023 XuYanhang
  */
+
 /**
  * There provide some tools on concurrent environment.
  * 

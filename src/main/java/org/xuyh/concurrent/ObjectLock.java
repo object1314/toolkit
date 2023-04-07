@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 2020 XuYanhang
- * 
+ * Copyright (c) 2020-2023 XuYanhang
  */
+
 package org.xuyh.concurrent;
 
 /**
@@ -9,7 +9,7 @@ package org.xuyh.concurrent;
  * {@link Object#equals(Object) equals} as <code>true</code> instead of
  * equivalence relation on objects as <code>obj1==obj2</code> in some situation.
  * Here we provide a lock on these same objects. We can use it like this:
- * 
+ *
  * <pre>
  *     ObjectLock lock = ObjectLock.lock("myLock");
  *     try {
@@ -18,9 +18,9 @@ package org.xuyh.concurrent;
  *         lock.unlock();
  *     }
  * </pre>
- * 
+ * <p>
  * Or this:
- * 
+ *
  * <pre>
  *     ObjectLock lock = ObjectLock.lockx("myLockk1", "mylockk2");
  *     try {
@@ -29,9 +29,9 @@ package org.xuyh.concurrent;
  *         lock.unlock();
  *     }
  * </pre>
- * 
+ * <p>
  * Of course, the used like this is permitted, while these locks are same one:
- * 
+ *
  * <pre>
  *     ObjectLock lock1 = ObjectLock.lock("myLock");
  *     try {
@@ -47,56 +47,52 @@ package org.xuyh.concurrent;
  *         lock1.unlock();
  *     }
  * </pre>
- * 
+ * <p>
  * But never forget to unlock a lock after do lock it each time.
- * 
- * @author XuYanhang
- * @since 2020-08-15
- * @see ObjectLockManager
  *
+ * @author XuYanhang
+ * @see ObjectLockManager
+ * @since 2020-08-15
  */
 public interface ObjectLock {
+    /**
+     * Lock on plural objects and get the lock. The result lock is an unfair lock.
+     * All objects are expected to be unchangeable on the results of
+     * {@link Object#equals(Object)} and {@link Object#hashCode()} ( for example, {@link String}
+     * ). The lock defined by and only by all the object values and their order.
+     * Two input keys are same like <code>("myLockk1", "mylockk2")</code> and
+     * <code>(new Object[] { "myLockk1", "mylockk2" })</code>. But the usage of
+     * <code>((Object)(new Object[] { "myLockk1", "mylockk2" })) is considered as a
+     * key of single object, just as call {@link #lock(Object)} directly.
+     *
+     * @param lockKey the key of the lock who maybe be in plural values
+     * @return the {@link ObjectLock lock} from the key
+     * @see #lock(Object)
+     */
+    static ObjectLock lockx(Object... lockKey) {
+        return ObjectLockManager.GLOBAL_MANAGER.lockx(lockKey);
+    }
 
-	/**
-	 * Lock on plural objects and get the lock. The result lock is an unfair lock.
-	 * All objects are expected to be unchangeable on the results of
-	 * {@link #equals(Object)} and {@link #hashCode()} ( for example, {@link String}
-	 * ). The lock defined by and only by all of the object values and their order.
-	 * Two input keys are same like <code>("myLockk1", "mylockk2")</code> and
-	 * <code>(new Object[] { "myLockk1", "mylockk2" })</code>. But the usage of
-	 * <code>((Object)(new Object[] { "myLockk1", "mylockk2" })) is considered as a
-	 * key of single object, just as call {@link #lock(Object)} directly.
-	 * 
-	 * 
-	 * @param lockKey the key of the lock who maybe be in plural values
-	 * @return the {@link ObjectLock lock} from the key
-	 * @see #lock(Object)
-	 */
-	public static ObjectLock lockx(Object... lockKey) {
-		return ObjectLockManager.GLOBAL_MANAGER.lockx(lockKey);
-	}
+    /**
+     * Lock on an object and get the lock. The result lock is an unfair lock. The
+     * object is expected to be unchangeable on the results of
+     * {@link Object#equals(Object)} and {@link Object#hashCode()} ( for example, {@link String}
+     * ).
+     *
+     * @param lockKey the key of the lock
+     * @return the {@link ObjectLock lock} from the key
+     */
+    static ObjectLock lock(Object lockKey) {
+        return ObjectLockManager.GLOBAL_MANAGER.lock(lockKey);
+    }
 
-	/**
-	 * Lock on an object and get the lock. The result lock is an unfair lock. The
-	 * object is expected to be unchangeable on the results of
-	 * {@link #equals(Object)} and {@link #hashCode()} ( for example, {@link String}
-	 * ).
-	 * 
-	 * @param lockKey the key of the lock
-	 * @return the {@link ObjectLockImp lock} from the key
-	 */
-	public static ObjectLock lock(Object lockKey) {
-		return ObjectLockManager.GLOBAL_MANAGER.lock(lockKey);
-	}
-
-	/**
-	 * Release the lock. The unlock operation must be one-to-one for each lock
-	 * operation, and the current unlock thread must be the locking thread or an
-	 * {@link IllegalMonitorStateException} thrown.
-	 * 
-	 * @throws IllegalMonitorStateException if the current thread does not hold this
-	 *                                      lock
-	 */
-	public void unlock();
-
+    /**
+     * Release the lock. The unlock operation must be one-to-one for each lock
+     * operation, and the current unlock thread must be the locking thread or an
+     * {@link IllegalMonitorStateException} thrown.
+     *
+     * @throws IllegalMonitorStateException if the current thread does not hold this
+     *                                      lock
+     */
+    void unlock();
 }
