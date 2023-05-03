@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 2022-2022 XuYanhang
- * 
+ * Copyright (c) 2022-2023 XuYanhang
  */
+
 package org.xuyh.graph;
 
 /**
@@ -12,14 +12,13 @@ package org.xuyh.graph;
  *
  */
 public final class Point0D extends PointSwapper {
-
 	/**
 	 * Singleton instance for this point type
 	 */
 	public static Point0D INSTANCE = new Point0D();
 
 	/**
-	 * Value return on {@link toArray}
+	 * Value return on {@link #toArray}
 	 */
 	private final int[] arr = new int[0];
 
@@ -55,7 +54,7 @@ public final class Point0D extends PointSwapper {
 			return true;
 		if (obj == null)
 			return false;
-		return getClass() == obj.getClass() ? true : super.equals(obj);
+		return getClass() == obj.getClass() || super.equals(obj);
 	}
 
 	@Override

@@ -113,12 +113,12 @@
 		<dependency>
 			<groupId>com.corundumstudio.socketio</groupId>
 			<artifactId>netty-socketio</artifactId>
-			<version>1.7.16</version>
+			<version>1.7.23</version>
 		</dependency>
 		<dependency>
 			<groupId>org.mitre.dsmiley.httpproxy</groupId>
 			<artifactId>smiley-http-proxy-servlet</artifactId>
-			<version>1.10</version>
+			<version>1.12.1</version>
 		</dependency>
 		<dependency>
 			<groupId>io.netty</groupId>
@@ -178,14 +178,14 @@
 		<dependency>
 			<groupId>com.fasterxml.uuid</groupId>
 			<artifactId>java-uuid-generator</artifactId>
-			<version>4.0.1</version>
+			<version>4.1.0</version>
 		</dependency>
 
 		<!-- Setting libraries for Google Collections Library -->
 		<dependency>
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>
-			<version>29.0-jre</version>
+			<version>31.1-jre</version>
 		</dependency>
 
 		<!-- Setting libraries for Redis -->
@@ -207,12 +207,18 @@
 		<dependency>
 			<groupId>com.google.zxing</groupId>
 			<artifactId>core</artifactId>
-			<version>3.4.1</version>
+			<version>3.5.1</version>
 		</dependency>
 		<dependency>
 			<groupId>com.google.zxing</groupId>
 			<artifactId>javase</artifactId>
-			<version>3.4.1</version>
+			<version>3.5.1</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.opencsv</groupId>
+			<artifactId>opencsv</artifactId>
+			<version>5.7.1</version>
 		</dependency>
 	</dependencies>
 </project>
